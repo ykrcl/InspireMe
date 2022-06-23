@@ -1,0 +1,117 @@
+﻿-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetRoles (
+    Id               VARCHAR (450) NOT NULL,
+    Name             VARCHAR (256) NULL,
+    NormalizedName   VARCHAR (256) NULL,
+    ConcurrencyStamp TEXT  NULL,
+    CONSTRAINT PK_AspNetRoles PRIMARY KEY (Id)
+);
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE UNIQUE INDEX RoleNameIndex
+    ON AspNetRoles(NormalizedName ASC) WHERE (NormalizedName IS NOT NULL);
+    
+    
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetUsers (
+    Id                   VARCHAR (450)     NOT NULL,
+    UserName             VARCHAR (256)     NULL,
+    NormalizedUserName   VARCHAR (256)     NULL,
+    Email                VARCHAR (256)     NULL,
+    NormalizedEmail      VARCHAR (256)     NULL,
+    EmailConfirmed       BOOLEAN                NOT NULL,
+    PasswordHash         TEXT      NULL,
+    SecurityStamp        TEXT      NULL,
+    ConcurrencyStamp     TEXT      NULL,
+    PhoneNumber          TEXT      NULL,
+    PhoneNumberConfirmed BOOLEAN                NOT NULL,
+    TwoFactorEnabled     BOOLEAN                NOT NULL,
+    LockoutEnd           TIMESTAMP (6) WITH TIME ZONE NULL,
+    LockoutEnabled       BOOLEAN                NOT NULL,
+    AccessFailedCount    INT                NOT NULL,
+    CONSTRAINT PK_AspNetUsers PRIMARY KEY (Id)
+);
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE UNIQUE INDEX UserNameIndex
+    ON AspNetUsers(NormalizedUserName ASC) WHERE (NormalizedUserName IS NOT NULL);
+
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE INDEX EmailIndex
+    ON AspNetUsers(NormalizedEmail ASC);    
+    
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetRoleClaims (
+    Id         INT            GENERATED ALWAYS AS IDENTITY (START WITH 1  INCREMENT BY 1) NOT NULL,
+    RoleId     VARCHAR (450) NOT NULL,
+    ClaimType  TEXT  NULL,
+    ClaimValue TEXT  NULL,
+    CONSTRAINT PK_AspNetRoleClaims PRIMARY KEY (Id),
+    CONSTRAINT FK_AspNetRoleClaims_AspNetRoles_RoleId FOREIGN KEY (RoleId) REFERENCES AspNetRoles (Id) ON DELETE CASCADE
+);
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE INDEX IX_AspNetRoleClaims_RoleId
+    ON AspNetRoleClaims(RoleId ASC);
+    
+ 
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetUserClaims (
+    Id         INT            GENERATED ALWAYS AS IDENTITY (START WITH 1  INCREMENT BY 1) NOT NULL,
+    UserId     VARCHAR (450) NOT NULL,
+    ClaimType  TEXT  NULL,
+    ClaimValue TEXT  NULL,
+    CONSTRAINT PK_AspNetUserClaims PRIMARY KEY (Id),
+    CONSTRAINT FK_AspNetUserClaims_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
+);
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE INDEX IX_AspNetUserClaims_UserId
+    ON AspNetUserClaims(UserId ASC);
+    
+    
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetUserLogins (
+    LoginProvider       VARCHAR (128) NOT NULL,
+    ProviderKey         VARCHAR (128) NOT NULL,
+    ProviderDisplayName TEXT  NULL,
+    UserId              VARCHAR (450) NOT NULL,
+    CONSTRAINT PK_AspNetUserLogins PRIMARY KEY (LoginProvider, ProviderKey),
+    CONSTRAINT FK_AspNetUserLogins_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
+);
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE INDEX IX_AspNetUserLogins_UserId
+    ON AspNetUserLogins(UserId ASC);
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetUserRoles (
+    UserId VARCHAR (450) NOT NULL,
+    RoleId VARCHAR (450) NOT NULL,
+    CONSTRAINT PK_AspNetUserRoles PRIMARY KEY (UserId, RoleId),
+    CONSTRAINT FK_AspNetUserRoles_AspNetRoles_RoleId FOREIGN KEY (RoleId) REFERENCES AspNetRoles (Id) ON DELETE CASCADE,
+    CONSTRAINT FK_AspNetUserRoles_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
+);
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE INDEX IX_AspNetUserRoles_RoleId
+    ON AspNetUserRoles(RoleId ASC);
+   
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE AspNetUserTokens (
+    UserId        VARCHAR (450) NOT NULL,
+    LoginProvider VARCHAR (128) NOT NULL,
+    Name          VARCHAR (128) NOT NULL,
+    Value         TEXT  NULL,
+    CONSTRAINT PK_AspNetUserTokens PRIMARY KEY (UserId, LoginProvider, Name),
+    CONSTRAINT FK_AspNetUserTokens_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES AspNetUsers (Id) ON DELETE CASCADE
+);  
+   
