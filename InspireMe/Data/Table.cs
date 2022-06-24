@@ -1,17 +1,17 @@
 ﻿using System.Data;
 using InspireMe.Data;
-namespace InspireMe.Identitiy
+namespace InspireMe.Data
 {
     /// <summary>
     /// A base class for all identity tables.
     /// </summary>
-    public class IdentityTable : TableBase
+    public class Table : TableBase
     {
         /// <summary>
-        /// Creates a new instance of <see cref="IdentityTable"/>.
+        /// Creates a new instance of <see cref="Table"/>.
         /// </summary>
         /// <param name="dbConnectionFactory"></param>
-        public IdentityTable(IDatabaseConnectionFactory dbConnectionFactory) {
+        public Table(IDatabaseConnectionFactory dbConnectionFactory) {
             DbConnection = dbConnectionFactory.CreateConnection();
         }
 

@@ -14,7 +14,7 @@ namespace InspireMe.Identitiy
     /// <typeparam name="TKey">The type of the primary key for a user.</typeparam>
     /// <typeparam name="TUserClaim">The type representing a claim.</typeparam>
     public class UserClaimsTable<TKey, TUserClaim> :
-        IdentityTable,
+        Table,
         IUserClaimsTable<TKey, TUserClaim>
         where TKey : IEquatable<TKey>
         where TUserClaim : IdentityUserClaim<TKey>, new()

@@ -14,7 +14,7 @@ namespace InspireMe.Identitiy
     /// <typeparam name="TKey">The type of the primary key for a user.</typeparam>
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     public class UserLoginsTable<TUser, TKey, TUserLogin> :
-        IdentityTable,
+        Table,
         IUserLoginsTable<TUser, TKey, TUserLogin>
         where TUser : IdentityUser<TKey>
         where TKey : IEquatable<TKey>

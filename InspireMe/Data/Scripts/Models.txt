@@ -1,0 +1,48 @@
+﻿CREATE TABLE public."AvailableDates"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 ),
+    "Hour" integer NOT NULL,
+    "Price" real,
+    "IsAvailable" boolean NOT NULL,
+    "UserId" character varying NOT NULL,
+    "Reason" character varying,
+    PRIMARY KEY ("Id"),
+    CONSTRAINT "User_Availabilty" FOREIGN KEY ("UserId")
+        REFERENCES public.aspnetusers (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID
+);
+
+ALTER TABLE IF EXISTS public."AvailableDates"
+    OWNER to postgres;
+
+
+CREATE TABLE public."Bookings"
+(
+    "Id" uuid NOT NULL,
+    "Date" date NOT NULL,
+    "CustomerRTCId" character varying,
+    "SupervisorRTCId" character varying,
+    "Hour" integer,
+    "IsStarted" boolean,
+    "IsEnded" boolean,
+    "IsVerified" boolean,
+    "ChatHistory" text,
+    "CustomerId" character varying NOT NULL,
+    "SupervisorId" character varying NOT NULL,
+    CONSTRAINT "Id" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_Bookings_AspNetUsers_UserId_Customer" FOREIGN KEY ("CustomerId")
+        REFERENCES public."AspNetUsers" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID,
+    CONSTRAINT "FK_Bookings_AspNetUsers_UserId_Supervisor" FOREIGN KEY ("SupervisorId")
+        REFERENCES public."AspNetUsers" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID
+);
+
+ALTER TABLE IF EXISTS public."Bookings"
+    OWNER to postgres;

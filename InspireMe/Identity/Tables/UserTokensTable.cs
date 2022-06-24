@@ -14,7 +14,7 @@ namespace InspireMe.Identitiy
     /// <typeparam name="TKey">The type of the primary key for a user.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     public class UserTokensTable<TKey, TUserToken> :
-        IdentityTable,
+        Table,
         IUserTokensTable<TKey, TUserToken>
         where TKey : IEquatable<TKey>
         where TUserToken : IdentityUserToken<TKey>, new()

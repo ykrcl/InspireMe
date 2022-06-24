@@ -14,7 +14,7 @@ namespace InspireMe.Identitiy
     /// <typeparam name="TKey">The type of the primary key for a role.</typeparam>
     /// <typeparam name="TRoleClaim">The type of the class representing a role claim.</typeparam>
     public class RoleClaimsTable<TKey, TRoleClaim> :
-        IdentityTable,
+        Table,
         IRoleClaimsTable<TKey, TRoleClaim>
         where TKey : IEquatable<TKey>
         where TRoleClaim : IdentityRoleClaim<TKey>, new()

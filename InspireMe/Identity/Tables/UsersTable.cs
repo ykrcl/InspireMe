@@ -19,7 +19,7 @@ namespace InspireMe.Identitiy
     /// <typeparam name="TUserLogin">The type representing a user external login.</typeparam>
     /// <typeparam name="TUserToken">The type representing a user token.</typeparam>
     public class UsersTable<TUser, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken> :
-        IdentityTable,
+        Table,
         IUsersTable<TUser, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken>
         where TUser : IdentityUser<TKey>
         where TKey : IEquatable<TKey>
