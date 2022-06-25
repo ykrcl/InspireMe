@@ -1,0 +1,48 @@
+﻿@model InspireMe.Models.LoginViewModel
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Giriş Yap"];
+}
+
+
+<h3>Localizer["Giriş Yap"]</h3>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Login" asp-controller="Accounts"  method="post" data-ajaxform data-parentid="ContentPage">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+           
+           
+            <div class="form-group">
+                <input type="submit" value="@Localizer["Giriş Yap"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a data-ajax data-target="ContentPage" asp-action="ForgotPassword" asp-controller="Accounts" >@Localizer["Şifremi Unuttum"]</a>
+    <a data-ajax data-target="ContentPage" asp-action="Register" asp-controller="Accounts" >@Localizer["Kayıt Ol"]</a>
+    <a data-ajax data-target="ContentPage" asp-action="Index" asp-controller="Home" >@Localizer["Geri Dön"]</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

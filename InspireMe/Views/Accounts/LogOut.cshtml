@@ -1,0 +1,36 @@
+﻿@model InspireMe.Models.LoginViewModel
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Çıkış Yap"];
+}
+
+
+<h3>Localizer["Çıkış Yap"]</h3>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="LogOut" asp-controller="Accounts"  method="post" data-ajaxform data-parentid="ContentPage">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+
+         
+           
+            <div class="form-group">
+                <input type="submit" value="@Localizer["Çıkış Yap"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    
+    <a data-ajax data-target="ContentPage" asp-action="Index" asp-controller="Home" >@Localizer["Geri Dön"]</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

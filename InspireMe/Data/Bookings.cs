@@ -12,7 +12,7 @@ namespace InspireMe.Data
             set;
         }
 
-        [Required]
+        [Required(ErrorMessage = "Tarih Boş Olamaz!")]
         public DateOnly Date
         {
             get;
@@ -41,7 +41,7 @@ namespace InspireMe.Data
             set;
         }
 
-        [Required]
+        [Required(ErrorMessage = "Saat Boş Olamaz!")]
         [Range(0, 24)]
         public int Hour
         {
