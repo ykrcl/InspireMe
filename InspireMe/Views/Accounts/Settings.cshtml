@@ -1,14 +1,13 @@
 ﻿@model InspireMe.Models.SettingsViewModel
 
 @using Microsoft.AspNetCore.Mvc.Localization
-
+@using Newtonsoft.Json
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Kullanıcı Ayarları"];
 }
 @{
-        var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
-        var allfields = jss.Serialize(ViewBag.allfields);
+        var allfields = System.Text.Json.JsonSerializer.Serialize(ViewBag.allfields);
 }
 
 <h3>Localizer["Kullanıcı Ayarları"]</h3>
