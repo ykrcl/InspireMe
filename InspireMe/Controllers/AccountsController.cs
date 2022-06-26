@@ -4,9 +4,39 @@ using Microsoft.AspNetCore.Identity;
 using InspireMe.Models;
 using Microsoft.Extensions.Localization;
 using FluentEmail.Core;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using InspireMe.Identitiy;
+using Dapper;
 
 namespace InspireMe.Controllers
 {
+
+    public class RedirectAuthorized : TypeFilterAttribute
+    {
+        public RedirectAuthorized() : base(typeof(RedirectAuthorizedFilter))
+        {
+           
+        }
+    }
+    public class RedirectAuthorizedFilter : IAuthorizationFilter
+    {
+       
+
+        public RedirectAuthorizedFilter()
+        {
+        }
+
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            SignInManager<IdentityUser> _loginManager = (SignInManager<IdentityUser>)context.HttpContext.RequestServices.GetService(typeof(SignInManager<IdentityUser>));
+            if (_loginManager.IsSignedIn(context.HttpContext.User))
+            {
+                context.Result = new RedirectToActionResult("Index","Accounts", new {});
+            }
+        }
+    }
     public class AccountsController : Controller
     {
 
@@ -17,8 +47,9 @@ namespace InspireMe.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IStringLocalizer<AccountsController> _localizer;
         private readonly IFluentEmailFactory _emailFactory;
-
-        public AccountsController(ILogger<AccountsController> logger, IDatabaseConnectionFactory connectionFactory, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> loginManager, RoleManager<IdentityRole> roleManager, IStringLocalizer<AccountsController> localizer, IFluentEmailFactory emailFactory)
+        private readonly IUserClaimsTable<string, IdentityUserClaim<string>> _userClaimsTable;
+        
+        public AccountsController(ILogger<AccountsController> logger, IDatabaseConnectionFactory connectionFactory, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> loginManager, RoleManager<IdentityRole> roleManager, IStringLocalizer<AccountsController> localizer, IFluentEmailFactory emailFactory, IUserClaimsTable<string, IdentityUserClaim<string>> userClaimsTable)
         {
             _logger = logger;
             _emailFactory = emailFactory;
@@ -27,6 +58,7 @@ namespace InspireMe.Controllers
             _userManager = userManager;
             _loginManager = loginManager;
             _roleManager = roleManager;
+            _userClaimsTable = userClaimsTable;
         }
         public async Task<IActionResult> Index()
         {
@@ -42,6 +74,7 @@ namespace InspireMe.Controllers
 
 
         [HttpPost]
+        [RedirectAuthorized]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register()
         {
@@ -55,6 +88,7 @@ namespace InspireMe.Controllers
 
 
         [HttpPost]
+        [RedirectAuthorized]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel obj)
         {
@@ -84,7 +118,7 @@ namespace InspireMe.Controllers
 
                     await email1.SendAsync();
                     if (obj.IsSupervisor == true)
-                    {
+                    { 
                         if (!_roleManager.RoleExistsAsync("Supervisor").Result)
                         {
                             IdentityRole role = new IdentityRole();
@@ -92,6 +126,7 @@ namespace InspireMe.Controllers
                             IdentityResult roleResult = await _roleManager.CreateAsync(role);
                             if (!roleResult.Succeeded)
                             {
+                                _logger.LogError("RoleCreationError", new { result = roleResult });
                                 ModelState.AddModelError("",
                                  "Error while creating role!");
                                 if (isAjax)
@@ -128,6 +163,7 @@ namespace InspireMe.Controllers
                     else
                     {
                         ViewBag.message = _localizer["Aramıza hoşgeldiniz!"];
+                        ViewBag.title = _localizer["Kayıt Ol!"];
                         return View("Message");
                     }
 
@@ -155,16 +191,133 @@ namespace InspireMe.Controllers
             if (result.Succeeded)
             {
                 ViewBag.message = _localizer["E-Posta başarıyla doğrulandı!"];
+                ViewBag.title = _localizer["E-Posta Doğrulama"];
                 return View("Message");
             }
             else
             {
+                ViewBag.title = _localizer["E-Posta Doğrulama"];
                 ViewBag.message = _localizer["E-Posta doğrulanırken bir hata oluştu!"];
                 return View("Message");
             }
         }
+        [Authorize]
+        public async Task<IActionResult> ChangePassword()
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+            if (isAjax)
+                return PartialView();
+            else
+                return View();
+
+        }
 
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel obj)
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(HttpContext.User);
+                var result = await _userManager.ChangePasswordAsync(user, obj.OldPassword, obj.Password);
+                if (result.Succeeded)
+                {
+                    if (isAjax)
+                    {
+                        return Json(new { success = true, alert = _localizer["Parolanız Başarıyla Değiştirildi!"], redirect = Url.Action("ChangePassword", "AccountsController") });
+                    }
+                    else
+                    {
+                        ViewBag.title = _localizer["Parola Değiştir"];
+                        ViewBag.message = _localizer["Parolanız Başarıyla Değiştirildi!"];
+                        return View("Message");
+                    }
+                }
+                else
+                {
+                    foreach (var error in result.Errors){
+                        ModelState.AddModelError("", error.Description);
+                    }    
+                }
+            }
+            if (isAjax)
+                return PartialView(obj);
+            else
+                return View(obj);
+
+        }
+
+
+        [Authorize]
+        public async Task<IActionResult> Settings()
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            var obj = new SettingsViewModel();
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var claims = await _userManager.GetClaimsAsync(user);
+            var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("fields");
+            ViewBag.allfields = allfields;
+            var fields = claims.Where(x => x.Type == "field").Select(x => x.Value).ToList();
+            obj.fields = String.Join(", ", claims);
+            if (isAjax)
+                return PartialView(obj);
+            else
+                return View(obj);
+        }
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Settings(SettingsViewModel obj)
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(HttpContext.User);
+                var claims = await _userManager.GetClaimsAsync(user);
+                var fields = obj.fields.Split(',').Select(p => p.Trim()).ToList();
+                foreach (var claim in claims)
+                {
+                    if (claim.Type == "field")
+                    {
+                        if (fields.Contains(claim.Value))
+                        {
+                            fields.Remove(claim.Value);
+                        }
+                        else
+                        {
+                            await _userManager.RemoveClaimAsync(user, claim);
+                        }
+                    }
+                }
+                foreach(var newfield in fields)
+                {
+                    var claim = new Claim("field", newfield);
+                    await _userManager.AddClaimAsync(user, claim);
+                }
+                await _userManager.UpdateAsync(user);
+                if (isAjax)
+                {
+                    return Json(new { success = true, alert = _localizer["Hesap Ayarları Kaydedildi!"], redirect = Url.Action("Settings", "AccountsController") });
+                }
+                else
+                {
+                    ViewBag.title = _localizer["Hesap Ayarları"];
+                    ViewBag.message = _localizer["Hesap Ayarları Kaydedildi!"];
+                    return View("Message");
+                }
+            }
+            if (isAjax)
+                return PartialView(obj);
+            else
+                return View(obj);
+
+        }
+
+        [RedirectAuthorized]
         public async Task<IActionResult> Login()
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
@@ -176,6 +329,7 @@ namespace InspireMe.Controllers
 
         }
         [HttpPost]
+        [RedirectAuthorized]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel obj)
         {
@@ -194,6 +348,7 @@ namespace InspireMe.Controllers
                         }
                         else
                         {
+                            ViewBag.title = _localizer["Giriş Yap"];
                             ViewBag.message = _localizer["Hoşgeldiniz!"];
                             return View("Message");
                         }
@@ -230,12 +385,13 @@ namespace InspireMe.Controllers
                 }
                 else
                 {
+                    ViewBag.title = _localizer["Çıkış Yap"];
                     ViewBag.message = _localizer["Hoşgeldiniz!"];
                     return View("Message");
                 }
             }
         }
-
+        [RedirectAuthorized]
         public async Task<IActionResult> ForgotPassword()
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
@@ -247,6 +403,7 @@ namespace InspireMe.Controllers
 
         }
         [HttpPost]
+        [RedirectAuthorized]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel obj)
         {
@@ -308,7 +465,8 @@ namespace InspireMe.Controllers
             }
             catch
             {
-                    ViewBag.message = _localizer["Kullanıcı bulunamadı!"];
+                ViewBag.title = _localizer["Parola Sıfırlama"];
+                ViewBag.message = _localizer["Kullanıcı bulunamadı!"];
                     return View("Message");   
             }
         }
@@ -327,11 +485,12 @@ namespace InspireMe.Controllers
                 {
                     if (isAjax)
                     {
-                        return Json(new { success = true, alert = _localizer["Şifreniz başaıyla değiştirildi!"], redirect = Url.Action("Index", "AccountsController") });
+                        return Json(new { success = true, alert = _localizer["Parolanız Başarıyla Değiştirildi!"], redirect = Url.Action("Index", "AccountsController") });
                     }
                     else
                     {
-                        ViewBag.message = _localizer["Şifreniz başaıyla değiştirildi!"];
+                            ViewBag.title = _localizer["Parola Sıfırlama"];
+                            ViewBag.message = _localizer["Parolanız Başarıyla Değiştirildi!"];
                         return View("Message");
                     }
                 }

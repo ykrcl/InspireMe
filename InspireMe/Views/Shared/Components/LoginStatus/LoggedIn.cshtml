@@ -1,0 +1,36 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+
+    <ul class="navbar-nav mr-auto">
+        @if(ViewBag.usertype == "Supervisor"){
+        <li class="nav-item">
+            <a data-ajax data-target="ContentPage" class="nav-link text-dark" asp-area="Supervisor" asp-controller="Manage" asp-action="Index">@Localizer["Görüşmeleri Yönet"]</a>
+        </li>
+        }
+        @if(ViewBag.usertype == "Customer"){
+        <li class="nav-item">
+            <a data-ajax data-target="ContentPage" class="nav-link text-dark" asp-area="Client" asp-controller="Manage" asp-action="Index">@Localizer["Görüşme Ayarla"]</a>
+        </li>
+        }
+        <li class="nav-item">
+            <a data-ajax data-target="ContentPage" class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">@Localizer["Hakkımızda"]</a>
+        </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark" href="#" data-toggle="dropdown">@Model.UserName</a>
+            <div class="dropdown-menu" style="text-align: center;">
+                <a data-ajax data-target="ContentPage" asp-area="" asp-controller="Accounts" asp-action="ChangePassword" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["Parola Değiştir"]
+                        </a>
+                <a data-ajax data-target="ContentPage" asp-area="" asp-controller="Accounts" asp-action="Settings" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["Hesap Ayarları"]
+                        </a>
+            </div>
+            
+        </li>
+    </ul>
+    

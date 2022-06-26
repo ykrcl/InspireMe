@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+            <a data-ajax data-target="ContentPage" class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">@Localizer["Hakkımızda"]</a>
+        </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark" href="#" data-toggle="dropdown">@Localizer["Kullanıcı"]</a>
+            <div class="dropdown-menu" style="text-align: center;">
+                         <a data-ajax data-target="ContentPage" asp-area="" asp-controller="Accounts" asp-action="Login" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["Giriş Yap"]
+                        </a>
+                         <a data-ajax data-target="ContentPage" asp-area="" asp-controller="Accounts" asp-action="Register" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["Kayıt Ol"]
+                        </a>
+            </div>
+            
+        </li>
+    </ul>
+    

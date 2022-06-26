@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using InspireMe.Data;
+using System.Security.Claims;
 
 namespace InspireMe.Identitiy
 {
@@ -31,6 +32,14 @@ namespace InspireMe.Identitiy
                                "FROM AspNetUserClaims " +
                                "WHERE UserId = @UserId;";
             var userClaims = await DbConnection.QueryAsync<TUserClaim>(sql, new { UserId = userId });
+            return userClaims;
+        }
+        public virtual async Task<IEnumerable<string>> GetClaimValuesByTypeAsync(string type)
+        {
+            const string sql = "SELECT DISTINCT Value " +
+                               "FROM AspNetUserClaims " +
+                               "WHERE Type = @Type;";
+            var userClaims = await DbConnection.QueryAsync<string>(sql, new { Type = type });
             return userClaims;
         }
     }

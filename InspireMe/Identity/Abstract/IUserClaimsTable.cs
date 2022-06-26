@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace InspireMe.Identitiy
 {
@@ -19,5 +20,6 @@ namespace InspireMe.Identitiy
         /// </summary>
         /// <param name="userId">The id of the user.</param>
         Task<IEnumerable<TUserClaim>> GetClaimsAsync(TKey userId);
+        Task<IEnumerable<string>> GetClaimValuesByTypeAsync(string type);
     }
 }

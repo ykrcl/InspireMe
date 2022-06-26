@@ -1,0 +1,85 @@
+﻿@model InspireMe.Models.SettingsViewModel
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Kullanıcı Ayarları"];
+}
+@{
+        var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+        var allfields = jss.Serialize(ViewBag.allfields);
+}
+
+<h3>Localizer["Kullanıcı Ayarları"]</h3>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Settings" asp-controller="Accounts"  method="post" data-ajaxform data-parentid="ContentPage">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+           
+            <div class="form-group">
+                <label asp-for="fields" class="control-label"></label>
+                <input asp-for="fields" class="form-control" />
+                <span asp-validation-for="fields" class="text-danger"></span>
+            </div>
+           
+            <div class="form-group">
+                <input type="submit" value="@Localizer["Kaydet"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    
+    <a data-ajax data-target="ContentPage" asp-action="Index" asp-controller="Accounts" >@Localizer["Geri Dön"]</a>
+</div>
+
+<script>
+        function split( val ) {
+      return val.split( /,\s*/ );
+    }
+    function extractLast( term ) {
+      return split( term ).pop();
+    }
+    var userInfo = JSON.parse('@Html.Raw(allfields)');
+    $( "#fields" )
+      // don't navigate away from the field on tab when selecting an item
+      .on( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.TAB &&
+            $( this ).autocomplete( "instance" ).menu.active ) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        minLength: 0,
+        source: function( request, response ) {
+          // delegate back to autocomplete, but extract the last term
+          response( $.ui.autocomplete.filter(
+            userInfo, extractLast( request.term ) ) );
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( ", " );
+          return false;
+        }
+      });
+  } );
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
