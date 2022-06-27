@@ -7,7 +7,7 @@ using FluentEmail.Core;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using InspireMe.Identitiy;
+using InspireMe.Identity;
 using Dapper;
 
 namespace InspireMe.Controllers
@@ -86,9 +86,7 @@ namespace InspireMe.Controllers
                     area = "Client";
                 }
             }
-            if (isAjax)
-                return Json(new { redirect = Url.Action(action, controller, new { area= area}) });
-            else
+           
                 return RedirectToAction(action, controller, new { area = area });
         }
 
@@ -281,10 +279,10 @@ namespace InspireMe.Controllers
             var obj = new SettingsViewModel();
             var user = await _userManager.GetUserAsync(HttpContext.User);
             var claims = await _userManager.GetClaimsAsync(user);
-            var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("fields");
+            var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
             ViewBag.allfields = allfields;
             var fields = claims.Where(x => x.Type == "field").Select(x => x.Value).ToList();
-            obj.fields = String.Join(", ", claims);
+            obj.fields = String.Join(", ", fields);
             if (isAjax)
                 return PartialView(obj);
             else
@@ -299,8 +297,9 @@ namespace InspireMe.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(HttpContext.User);
-                var claims = await _userManager.GetClaimsAsync(user);
+                var claims = (await _userManager.GetClaimsAsync(user)).ToList();
                 var fields = obj.fields.Split(',').Select(p => p.Trim()).ToList();
+                var deletedclaims = new List<Claim>();
                 foreach (var claim in claims)
                 {
                     if (claim.Type == "field")
@@ -311,14 +310,18 @@ namespace InspireMe.Controllers
                         }
                         else
                         {
-                            await _userManager.RemoveClaimAsync(user, claim);
+                            deletedclaims.Add(claim);
+                            
                         }
                     }
                 }
-                foreach(var newfield in fields)
+                await _userManager.RemoveClaimsAsync(user, deletedclaims);
+                foreach (var newfield in fields)
                 {
+                    if (newfield != "") { 
                     var claim = new Claim("field", newfield);
                     await _userManager.AddClaimAsync(user, claim);
+                    }
                 }
                 await _userManager.UpdateAsync(user);
                 if (isAjax)

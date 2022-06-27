@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// Represents a persistence store for the specified user type, without support for roles.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     internal static class ObjectExtensions
     {

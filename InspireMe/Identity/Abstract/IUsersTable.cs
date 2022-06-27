@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// Abstraction for interacting with AspNetUsers table.

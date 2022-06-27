@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using InspireMe.Data;
 using System.Security.Claims;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// The default implementation of <see cref="IUserClaimsTable{TKey, TUserClaim}"/>.
@@ -36,9 +36,9 @@ namespace InspireMe.Identitiy
         }
         public virtual async Task<IEnumerable<string>> GetClaimValuesByTypeAsync(string type)
         {
-            const string sql = "SELECT DISTINCT Value " +
+            const string sql = "SELECT DISTINCT ClaimValue " +
                                "FROM AspNetUserClaims " +
-                               "WHERE Type = @Type;";
+                               "WHERE ClaimType = @Type;";
             var userClaims = await DbConnection.QueryAsync<string>(sql, new { Type = type });
             return userClaims;
         }

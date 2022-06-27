@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Microsoft.Extensions.DependencyInjection;
 using InspireMe.Data;
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// Options for configuring Dapper stores.

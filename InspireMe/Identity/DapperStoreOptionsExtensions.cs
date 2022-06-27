@@ -1,5 +1,5 @@
 ﻿using System;
-using InspireMe.Identitiy;
+using InspireMe.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace Microsoft.Extensions.DependencyInjection

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// Represents a persistence store for the specified user and role types.
@@ -276,7 +276,7 @@ namespace InspireMe.Identitiy
             claims.ThrowIfNull(nameof(claims));
             UserClaims ??= (await UserClaimsTable.GetClaimsAsync(user.Id)).ToList();
             foreach (var claim in claims) {
-                var matchedClaims = UserClaims.Where(x => x.UserId.Equals(user.Id) && x.ClaimType == claim.Type && x.ClaimValue == claim.Value);
+                var matchedClaims = UserClaims.Where(x => x.UserId.Equals(user.Id) && x.ClaimType == claim.Type && x.ClaimValue == claim.Value).ToList();
                 foreach (var matchedClaim in matchedClaims) {
                     UserClaims.Remove(matchedClaim);
                 }

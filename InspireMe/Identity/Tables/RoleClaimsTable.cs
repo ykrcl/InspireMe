@@ -6,7 +6,7 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using InspireMe.Data;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// The default implementation of <see cref="IRoleClaimsTable{TKey, TRoleClaim}"/>.

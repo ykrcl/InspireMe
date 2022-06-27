@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using InspireMe.Identitiy;
+using InspireMe.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;

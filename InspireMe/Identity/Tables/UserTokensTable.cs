@@ -6,7 +6,7 @@ using Dapper;
 using InspireMe.Data;
 using Microsoft.AspNetCore.Identity;
 
-namespace InspireMe.Identitiy
+namespace InspireMe.Identity
 {
     /// <summary>
     /// The default implementation of <see cref="IUserTokensTable{TKey, TUserToken}"/>.
