@@ -60,22 +60,42 @@ namespace InspireMe.Controllers
             _roleManager = roleManager;
             _userClaimsTable = userClaimsTable;
         }
+        
+        
+        
         public async Task<IActionResult> Index()
         {
 
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-
+            var controller = "Accounts";
+            var action = "Login";
+            var area = "default";
+            if (_loginManager.IsSignedIn(HttpContext.User))
+            {
+                var user = await _userManager.GetUserAsync(HttpContext.User);
+                if(await _userManager.IsInRoleAsync(user, "Supervisor"))
+                {
+                    action = "Index";
+                    controller = "Manage";
+                    area = "Supervisor";
+                }
+                else
+                {
+                    action = "Index";
+                    controller = "Bookings";
+                    area = "Client";
+                }
+            }
             if (isAjax)
-                return Json(new { redirectTo = Url.Action("Index", "ControllerAction") });
+                return Json(new { redirect = Url.Action(action, controller, new { area= area}) });
             else
-                return RedirectToAction("Index", "ControllerAction");
+                return RedirectToAction(action, controller, new { area = area });
         }
 
 
 
-        [HttpPost]
+        
         [RedirectAuthorized]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register()
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
@@ -113,7 +133,7 @@ namespace InspireMe.Controllers
                     var email1 = _emailFactory
                         .Create()
                         .To(user.Email)
-                        .Subject(_localizer["E-Posta Doğrulama"])
+                        .Subject(_localizer["E-Posta Doğrulama"].Value)
                         .Body(_localizer["E-Postanızı bu linkten doğrulayın:"] + " " + confirmationLink);
 
                     await email1.SendAsync();
@@ -158,20 +178,22 @@ namespace InspireMe.Controllers
                     }
                     if (isAjax)
                     {
-                        return Json(new { success = true, alert = _localizer["Aramıza hoşgeldiniz!"] });
+                        return Json(new { success = true, alert = _localizer["Aramıza hoşgeldiniz!"].Value });
                     }
                     else
                     {
-                        ViewBag.message = _localizer["Aramıza hoşgeldiniz!"];
-                        ViewBag.title = _localizer["Kayıt Ol!"];
+                        ViewBag.message = _localizer["Aramıza hoşgeldiniz!"].Value;
+                        ViewBag.title = _localizer["Kayıt Ol!"].Value;
                         return View("Message");
                     }
 
                 }
                 else
                 {
-                    ModelState.AddModelError("", string.Join(", ",
-                                 result.Errors));
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
                     if (isAjax)
                         return PartialView(obj);
                     else
@@ -190,14 +212,14 @@ namespace InspireMe.Controllers
             IdentityResult result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                ViewBag.message = _localizer["E-Posta başarıyla doğrulandı!"];
-                ViewBag.title = _localizer["E-Posta Doğrulama"];
+                ViewBag.message = _localizer["E-Posta başarıyla doğrulandı!"].Value;
+                ViewBag.title = _localizer["E-Posta Doğrulama"].Value;
                 return View("Message");
             }
             else
             {
-                ViewBag.title = _localizer["E-Posta Doğrulama"];
-                ViewBag.message = _localizer["E-Posta doğrulanırken bir hata oluştu!"];
+                ViewBag.title = _localizer["E-Posta Doğrulama"].Value;
+                ViewBag.message = _localizer["E-Posta doğrulanırken bir hata oluştu!"].Value;
                 return View("Message");
             }
         }
@@ -228,7 +250,7 @@ namespace InspireMe.Controllers
                 {
                     if (isAjax)
                     {
-                        return Json(new { success = true, alert = _localizer["Parolanız Başarıyla Değiştirildi!"], redirect = Url.Action("ChangePassword", "AccountsController") });
+                        return Json(new { success = true, alert = _localizer["Parolanız Başarıyla Değiştirildi!"], redirect = Url.Action("ChangePassword", "Accounts") });
                     }
                     else
                     {
@@ -301,12 +323,12 @@ namespace InspireMe.Controllers
                 await _userManager.UpdateAsync(user);
                 if (isAjax)
                 {
-                    return Json(new { success = true, alert = _localizer["Hesap Ayarları Kaydedildi!"], redirect = Url.Action("Settings", "AccountsController") });
+                    return Json(new { success = true, alert = _localizer["Hesap Ayarları Kaydedildi!"].Value, redirect = Url.Action("Settings", "Accounts") });
                 }
                 else
                 {
-                    ViewBag.title = _localizer["Hesap Ayarları"];
-                    ViewBag.message = _localizer["Hesap Ayarları Kaydedildi!"];
+                    ViewBag.title = _localizer["Hesap Ayarları"].Value;
+                    ViewBag.message = _localizer["Hesap Ayarları Kaydedildi!"].Value;
                     return View("Message");
                 }
             }
@@ -316,7 +338,16 @@ namespace InspireMe.Controllers
                 return View(obj);
 
         }
+        public async Task<IActionResult> loginstatus()
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
 
+            if (isAjax)
+                return ViewComponent("LoginStatus");
+            else
+                return RedirectToAction("Index", "Accounts");
+
+        }
         [RedirectAuthorized]
         public async Task<IActionResult> Login()
         {
@@ -344,19 +375,25 @@ namespace InspireMe.Controllers
                     {
                         if (isAjax)
                         {
-                            return Json(new { success = true, alert = _localizer["Hoşgeldiniz!"], redirect = Url.Action("Index", "AccountsController") });
+                            return Json(new { success = true, updatelogin=true, alert = _localizer["Hoşgeldiniz!"].Value, redirect = Url.Action("Index", "Accounts") });
                         }
                         else
                         {
-                            ViewBag.title = _localizer["Giriş Yap"];
-                            ViewBag.message = _localizer["Hoşgeldiniz!"];
+                            ViewBag.title = _localizer["Giriş Yap"].Value;
+                            ViewBag.message = _localizer["Hoşgeldiniz!"].Value;
                             return View("Message");
                         }
+                    }
+                    else
+                    {
+                       
+                            ModelState.AddModelError("", _localizer["E-Posta veya Parola Yanlış!!!"].Value);
+                        
                     }
                 }
                 catch
                 {
-                    ModelState.AddModelError("Email", _localizer["Kullanıcı bulunamadı!"]);
+                    ModelState.AddModelError("Email", _localizer["Kullanıcı bulunamadı!"].Value);
 
                 }
 
@@ -381,12 +418,12 @@ namespace InspireMe.Controllers
                 await _loginManager.SignOutAsync();
                 if (isAjax)
                 {
-                    return Json(new { success = true, alert = _localizer["Güle Güle!"], redirect = Url.Action("Index", "AccountsController") });
+                    return Json(new { success = true, updatelogin = true, alert = _localizer["Güle Güle!"].Value, redirect = Url.Action("Index", "Accounts") });
                 }
                 else
                 {
-                    ViewBag.title = _localizer["Çıkış Yap"];
-                    ViewBag.message = _localizer["Hoşgeldiniz!"];
+                    ViewBag.title = _localizer["Çıkış Yap"].Value;
+                    ViewBag.message = _localizer["Hoşgeldiniz!"].Value;
                     return View("Message");
                 }
             }
@@ -424,24 +461,24 @@ namespace InspireMe.Controllers
                     var email1 = _emailFactory
                         .Create()
                         .To(user.Email)
-                        .Subject(_localizer["Parola Sıfırlama"])
-                        .Body(_localizer["Parolanızı bu linkten sıfırlayın:"] + " " + resetLink);
+                        .Subject(_localizer["Parola Sıfırlama"].Value)
+                        .Body(_localizer["Parolanızı bu linkten sıfırlayın:"].Value + " " + resetLink);
 
                     await email1.SendAsync();
                     if (isAjax)
                     {
-                        return Json(new { success = true, alert = _localizer["Parolama sıfırlama linki e-postanıza gönderildi!"], redirect = Url.Action("Index", "AccountsController") });
+                        return Json(new { success = true, alert = _localizer["Parolama sıfırlama linki e-postanıza gönderildi!"].Value, redirect = Url.Action("Index", "Accounts") });
                     }
                     else
                     {
-                        ViewBag.message = _localizer["Parolama sıfırlama linki e-postanıza gönderildi!"];
+                        ViewBag.message = _localizer["Parolama sıfırlama linki e-postanıza gönderildi!"].Value;
                         return View("Message");
                     }
 
                 }
                 catch
                 {
-                    ModelState.AddModelError("Email", _localizer["Kullanıcı bulunamadı!"]);
+                    ModelState.AddModelError("Email", _localizer["Kullanıcı bulunamadı!"].Value);
                 }
             }
             if (isAjax)
@@ -465,8 +502,8 @@ namespace InspireMe.Controllers
             }
             catch
             {
-                ViewBag.title = _localizer["Parola Sıfırlama"];
-                ViewBag.message = _localizer["Kullanıcı bulunamadı!"];
+                ViewBag.title = _localizer["Parola Sıfırlama"].Value;
+                ViewBag.message = _localizer["Kullanıcı bulunamadı!"].Value;
                     return View("Message");   
             }
         }
@@ -485,23 +522,26 @@ namespace InspireMe.Controllers
                 {
                     if (isAjax)
                     {
-                        return Json(new { success = true, alert = _localizer["Parolanız Başarıyla Değiştirildi!"], redirect = Url.Action("Index", "AccountsController") });
+                        return Json(new { success = true, alert = _localizer["Parolanız Başarıyla Değiştirildi!"].Value, redirect = Url.Action("Index", "Accounts") });
                     }
                     else
                     {
-                            ViewBag.title = _localizer["Parola Sıfırlama"];
-                            ViewBag.message = _localizer["Parolanız Başarıyla Değiştirildi!"];
+                            ViewBag.title = _localizer["Parola Sıfırlama"].Value;
+                            ViewBag.message = _localizer["Parolanız Başarıyla Değiştirildi!"].Value;
                         return View("Message");
                     }
                 }
                     else
                     {
-                        ModelState.AddModelError("", _localizer["Url'de hata var!"]);
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", error.Description);
+                        }
                     }
                 }
                 catch
                 {
-                    ModelState.AddModelError("", _localizer["Kullanıcı bulunamadı!"]);
+                    ModelState.AddModelError("", _localizer["Kullanıcı bulunamadı!"].Value);
                 }
             }
             if (isAjax)

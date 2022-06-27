@@ -129,6 +129,9 @@
   <data name="E-Posta doğrulanırken bir hata oluştu!" xml:space="preserve">
     <value>Error while confirming your email!</value>
   </data>
+  <data name="E-Posta veya Parola Yanlış!!!" xml:space="preserve">
+    <value>E-Mail or/and Password are Wrong!!!</value>
+  </data>
   <data name="E-Postanızı bu linkten doğrulayın:" xml:space="preserve">
     <value>Confirm your e-mail using this url: </value>
   </data>

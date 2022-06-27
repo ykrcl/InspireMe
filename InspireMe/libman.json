@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "jqueryui@1.12.1",
+      "destination": "wwwroot/jqueryui/"
+    },
+    {
+      "library": "cleave.js@1.6.0",
+      "destination": "wwwroot/lib/cleave.js/"
+    }
+  ]
+}

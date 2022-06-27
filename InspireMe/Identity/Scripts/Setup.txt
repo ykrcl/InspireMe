@@ -5,7 +5,7 @@
 -- Dumped from database version 14.4
 -- Dumped by pg_dump version 14.4
 
--- Started on 2022-06-24 11:31:16
+-- Started on 2022-06-27 13:45:02
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -23,141 +23,26 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 212 (class 1259 OID 16418)
--- Name: AspNetRoleClaims; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 212 (class 1259 OID 16537)
+-- Name: aspnetroleclaims; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-CREATE TABLE public."AspNetRoleClaims" (
-    "Id" integer NOT NULL,
-    "RoleId" character varying(450) NOT NULL,
-    "ClaimType" text,
-    "ClaimValue" text
+CREATE TABLE public.aspnetroleclaims (
+    id integer NOT NULL,
+    roleid character varying(450) NOT NULL,
+    claimtype text,
+    claimvalue text
 );
 
 
---
--- TOC entry 209 (class 1259 OID 16400)
--- Name: AspNetRoles; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."AspNetRoles" (
-    "Id" character varying(450) NOT NULL,
-    "Name" character varying(256),
-    "NormalizedName" character varying(256),
-    "ConcurrencyStamp" text
-);
-
+ALTER TABLE public.aspnetroleclaims OWNER TO "GetInspired";
 
 --
--- TOC entry 214 (class 1259 OID 16432)
--- Name: AspNetUserClaims; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 211 (class 1259 OID 16536)
+-- Name: aspnetroleclaims_id_seq; Type: SEQUENCE; Schema: public; Owner: GetInspired
 --
 
-CREATE TABLE public."AspNetUserClaims" (
-    "Id" integer NOT NULL,
-    "UserId" character varying(450) NOT NULL,
-    "ClaimType" text,
-    "ClaimValue" text
-);
-
-
---
--- TOC entry 215 (class 1259 OID 16445)
--- Name: AspNetUserLogins; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."AspNetUserLogins" (
-    "LoginProvider" character varying(128) NOT NULL,
-    "ProviderKey" character varying(128) NOT NULL,
-    "ProviderDisplayName" text,
-    "UserId" character varying(450) NOT NULL
-);
-
-
---
--- TOC entry 216 (class 1259 OID 16458)
--- Name: AspNetUserRoles; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."AspNetUserRoles" (
-    "UserId" character varying(450) NOT NULL,
-    "RoleId" character varying(450) NOT NULL
-);
-
-
---
--- TOC entry 217 (class 1259 OID 16476)
--- Name: AspNetUserTokens; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."AspNetUserTokens" (
-    "UserId" character varying(450) NOT NULL,
-    "LoginProvider" character varying(128) NOT NULL,
-    "Name" character varying(128) NOT NULL,
-    "Value" text
-);
-
-
---
--- TOC entry 210 (class 1259 OID 16408)
--- Name: AspNetUsers; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."AspNetUsers" (
-    "Id" character varying(450) NOT NULL,
-    "UserName" character varying(256),
-    "NormalizedUserName" character varying(256),
-    "Email" character varying(256),
-    "NormalizedEmail" character varying(256),
-    "EmailConfirmed" boolean NOT NULL,
-    "PasswordHash" text,
-    "SecurityStamp" text,
-    "ConcurrencyStamp" text,
-    "PhoneNumber" text,
-    "PhoneNumberConfirmed" boolean NOT NULL,
-    "TwoFactorEnabled" boolean NOT NULL,
-    "LockoutEnd" timestamp(6) with time zone,
-    "LockoutEnabled" boolean NOT NULL,
-    "AccessFailedCount" integer NOT NULL
-);
-
-
---
--- TOC entry 219 (class 1259 OID 16489)
--- Name: AvailableDates; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."AvailableDates" (
-    "Id" integer NOT NULL,
-    "Hour" integer NOT NULL,
-    "Price" real,
-    "IsAvailable" boolean NOT NULL,
-    "UserId" character varying NOT NULL,
-    "Reason" character varying
-);
-
-
---
--- TOC entry 218 (class 1259 OID 16488)
--- Name: AvailableDates_Id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public."AvailableDates" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public."AvailableDates_Id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- TOC entry 211 (class 1259 OID 16417)
--- Name: aspnetroleclaims_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public."AspNetRoleClaims" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.aspnetroleclaims ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.aspnetroleclaims_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -168,11 +53,41 @@ ALTER TABLE public."AspNetRoleClaims" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS 
 
 
 --
--- TOC entry 213 (class 1259 OID 16431)
--- Name: aspnetuserclaims_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- TOC entry 209 (class 1259 OID 16519)
+-- Name: aspnetroles; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE public."AspNetUserClaims" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS IDENTITY (
+CREATE TABLE public.aspnetroles (
+    id character varying(450) NOT NULL,
+    name character varying(256),
+    normalizedname character varying(256),
+    concurrencystamp text
+);
+
+
+ALTER TABLE public.aspnetroles OWNER TO "GetInspired";
+
+--
+-- TOC entry 214 (class 1259 OID 16551)
+-- Name: aspnetuserclaims; Type: TABLE; Schema: public; Owner: GetInspired
+--
+
+CREATE TABLE public.aspnetuserclaims (
+    id integer NOT NULL,
+    userid character varying(450) NOT NULL,
+    claimtype text,
+    claimvalue text
+);
+
+
+ALTER TABLE public.aspnetuserclaims OWNER TO "GetInspired";
+
+--
+-- TOC entry 213 (class 1259 OID 16550)
+-- Name: aspnetuserclaims_id_seq; Type: SEQUENCE; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE public.aspnetuserclaims ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.aspnetuserclaims_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -183,197 +98,347 @@ ALTER TABLE public."AspNetUserClaims" ALTER COLUMN "Id" ADD GENERATED ALWAYS AS 
 
 
 --
--- TOC entry 3216 (class 2606 OID 16495)
--- Name: AvailableDates AvailableDates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 215 (class 1259 OID 16564)
+-- Name: aspnetuserlogins; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AvailableDates"
-    ADD CONSTRAINT "AvailableDates_pkey" PRIMARY KEY ("Id");
+CREATE TABLE public.aspnetuserlogins (
+    loginprovider character varying(128) NOT NULL,
+    providerkey character varying(128) NOT NULL,
+    providerdisplayname text,
+    userid character varying(450) NOT NULL
+);
 
 
---
--- TOC entry 3202 (class 2606 OID 16424)
--- Name: AspNetRoleClaims PK_AspNetRoleClaims; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetRoleClaims"
-    ADD CONSTRAINT "PK_AspNetRoleClaims" PRIMARY KEY ("Id");
-
+ALTER TABLE public.aspnetuserlogins OWNER TO "GetInspired";
 
 --
--- TOC entry 3195 (class 2606 OID 16406)
--- Name: AspNetRoles PK_AspNetRoles; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 216 (class 1259 OID 16577)
+-- Name: aspnetuserroles; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AspNetRoles"
-    ADD CONSTRAINT "PK_AspNetRoles" PRIMARY KEY ("Id");
+CREATE TABLE public.aspnetuserroles (
+    userid character varying(450) NOT NULL,
+    roleid character varying(450) NOT NULL
+);
 
 
---
--- TOC entry 3205 (class 2606 OID 16438)
--- Name: AspNetUserClaims PK_AspNetUserClaims; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetUserClaims"
-    ADD CONSTRAINT "PK_AspNetUserClaims" PRIMARY KEY ("Id");
-
+ALTER TABLE public.aspnetuserroles OWNER TO "GetInspired";
 
 --
--- TOC entry 3208 (class 2606 OID 16451)
--- Name: AspNetUserLogins PK_AspNetUserLogins; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 210 (class 1259 OID 16527)
+-- Name: aspnetusers; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AspNetUserLogins"
-    ADD CONSTRAINT "PK_AspNetUserLogins" PRIMARY KEY ("LoginProvider", "ProviderKey");
+CREATE TABLE public.aspnetusers (
+    id character varying(450) NOT NULL,
+    username character varying(256),
+    normalizedusername character varying(256),
+    email character varying(256),
+    normalizedemail character varying(256),
+    emailconfirmed boolean NOT NULL,
+    passwordhash text,
+    securitystamp text,
+    concurrencystamp text,
+    phonenumber text,
+    phonenumberconfirmed boolean NOT NULL,
+    twofactorenabled boolean NOT NULL,
+    lockoutend timestamp(6) with time zone,
+    lockoutenabled boolean NOT NULL,
+    accessfailedcount integer NOT NULL
+);
 
 
---
--- TOC entry 3211 (class 2606 OID 16464)
--- Name: AspNetUserRoles PK_AspNetUserRoles; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetUserRoles"
-    ADD CONSTRAINT "PK_AspNetUserRoles" PRIMARY KEY ("UserId", "RoleId");
-
-
---
--- TOC entry 3214 (class 2606 OID 16482)
--- Name: AspNetUserTokens PK_AspNetUserTokens; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetUserTokens"
-    ADD CONSTRAINT "PK_AspNetUserTokens" PRIMARY KEY ("UserId", "LoginProvider", "Name");
-
-
---
--- TOC entry 3198 (class 2606 OID 16414)
--- Name: AspNetUsers PK_AspNetUsers; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetUsers"
-    ADD CONSTRAINT "PK_AspNetUsers" PRIMARY KEY ("Id");
-
+ALTER TABLE public.aspnetusers OWNER TO "GetInspired";
 
 --
--- TOC entry 3199 (class 1259 OID 16416)
--- Name: emailindex; Type: INDEX; Schema: public; Owner: -
+-- TOC entry 217 (class 1259 OID 16595)
+-- Name: aspnetusertokens; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-CREATE INDEX emailindex ON public."AspNetUsers" USING btree ("NormalizedEmail");
+CREATE TABLE public.aspnetusertokens (
+    userid character varying(450) NOT NULL,
+    loginprovider character varying(128) NOT NULL,
+    name character varying(128) NOT NULL,
+    value text
+);
 
 
---
--- TOC entry 3203 (class 1259 OID 16430)
--- Name: ix_aspnetroleclaims_roleid; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_aspnetroleclaims_roleid ON public."AspNetRoleClaims" USING btree ("RoleId");
-
-
---
--- TOC entry 3206 (class 1259 OID 16444)
--- Name: ix_aspnetuserclaims_userid; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_aspnetuserclaims_userid ON public."AspNetUserClaims" USING btree ("UserId");
-
+ALTER TABLE public.aspnetusertokens OWNER TO "GetInspired";
 
 --
--- TOC entry 3209 (class 1259 OID 16457)
--- Name: ix_aspnetuserlogins_userid; Type: INDEX; Schema: public; Owner: -
+-- TOC entry 219 (class 1259 OID 16608)
+-- Name: availabledates; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-CREATE INDEX ix_aspnetuserlogins_userid ON public."AspNetUserLogins" USING btree ("UserId");
+CREATE TABLE public.availabledates (
+    id integer NOT NULL,
+    hour integer NOT NULL,
+    price real,
+    isavailable boolean NOT NULL,
+    userid character varying NOT NULL,
+    reason character varying
+);
+
+
+ALTER TABLE public.availabledates OWNER TO "GetInspired";
+
+--
+-- TOC entry 218 (class 1259 OID 16607)
+-- Name: availabledates_id_seq; Type: SEQUENCE; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE public.availabledates ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.availabledates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 
 --
--- TOC entry 3212 (class 1259 OID 16475)
--- Name: ix_aspnetuserroles_roleid; Type: INDEX; Schema: public; Owner: -
+-- TOC entry 220 (class 1259 OID 16620)
+-- Name: bookings; Type: TABLE; Schema: public; Owner: GetInspired
 --
 
-CREATE INDEX ix_aspnetuserroles_roleid ON public."AspNetUserRoles" USING btree ("RoleId");
+CREATE TABLE public.bookings (
+    id uuid NOT NULL,
+    date date NOT NULL,
+    customerrtcid character varying,
+    supervisorrtcid character varying,
+    hour integer,
+    isstarted boolean,
+    isended boolean,
+    isverified boolean,
+    chathistory text,
+    customerid character varying NOT NULL,
+    supervisorid character varying NOT NULL
+);
 
 
---
--- TOC entry 3196 (class 1259 OID 16407)
--- Name: rolenameindex; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX rolenameindex ON public."AspNetRoles" USING btree ("NormalizedName") WHERE ("NormalizedName" IS NOT NULL);
-
-
---
--- TOC entry 3200 (class 1259 OID 16415)
--- Name: usernameindex; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX usernameindex ON public."AspNetUsers" USING btree ("NormalizedUserName") WHERE ("NormalizedUserName" IS NOT NULL);
-
+ALTER TABLE public.bookings OWNER TO "GetInspired";
 
 --
--- TOC entry 3217 (class 2606 OID 16425)
--- Name: AspNetRoleClaims FK_AspNetRoleClaims_AspNetRoles_RoleId; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3220 (class 2606 OID 16614)
+-- Name: availabledates availabledates_pkey; Type: CONSTRAINT; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AspNetRoleClaims"
-    ADD CONSTRAINT "FK_AspNetRoleClaims_AspNetRoles_RoleId" FOREIGN KEY ("RoleId") REFERENCES public."AspNetRoles"("Id") ON DELETE CASCADE;
+ALTER TABLE ONLY public.availabledates
+    ADD CONSTRAINT availabledates_pkey PRIMARY KEY (id);
 
 
 --
--- TOC entry 3218 (class 2606 OID 16439)
--- Name: AspNetUserClaims FK_AspNetUserClaims_AspNetUsers_UserId; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3222 (class 2606 OID 16626)
+-- Name: bookings id; Type: CONSTRAINT; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AspNetUserClaims"
-    ADD CONSTRAINT "FK_AspNetUserClaims_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES public."AspNetUsers"("Id") ON DELETE CASCADE;
-
-
---
--- TOC entry 3219 (class 2606 OID 16452)
--- Name: AspNetUserLogins FK_AspNetUserLogins_AspNetUsers_UserId; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetUserLogins"
-    ADD CONSTRAINT "FK_AspNetUserLogins_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES public."AspNetUsers"("Id") ON DELETE CASCADE;
+ALTER TABLE ONLY public.bookings
+    ADD CONSTRAINT id PRIMARY KEY (id);
 
 
 --
--- TOC entry 3220 (class 2606 OID 16465)
--- Name: AspNetUserRoles FK_AspNetUserRoles_AspNetRoles_RoleId; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3207 (class 2606 OID 16543)
+-- Name: aspnetroleclaims pk_aspnetroleclaims; Type: CONSTRAINT; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AspNetUserRoles"
-    ADD CONSTRAINT "FK_AspNetUserRoles_AspNetRoles_RoleId" FOREIGN KEY ("RoleId") REFERENCES public."AspNetRoles"("Id") ON DELETE CASCADE;
-
-
---
--- TOC entry 3221 (class 2606 OID 16470)
--- Name: AspNetUserRoles FK_AspNetUserRoles_AspNetUsers_UserId; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."AspNetUserRoles"
-    ADD CONSTRAINT "FK_AspNetUserRoles_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES public."AspNetUsers"("Id") ON DELETE CASCADE;
+ALTER TABLE ONLY public.aspnetroleclaims
+    ADD CONSTRAINT pk_aspnetroleclaims PRIMARY KEY (id);
 
 
 --
--- TOC entry 3222 (class 2606 OID 16483)
--- Name: AspNetUserTokens FK_AspNetUserTokens_AspNetUsers_UserId; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3199 (class 2606 OID 16525)
+-- Name: aspnetroles pk_aspnetroles; Type: CONSTRAINT; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AspNetUserTokens"
-    ADD CONSTRAINT "FK_AspNetUserTokens_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES public."AspNetUsers"("Id") ON DELETE CASCADE;
+ALTER TABLE ONLY public.aspnetroles
+    ADD CONSTRAINT pk_aspnetroles PRIMARY KEY (id);
 
 
 --
--- TOC entry 3223 (class 2606 OID 16496)
--- Name: AvailableDates User_Availabilty; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3210 (class 2606 OID 16557)
+-- Name: aspnetuserclaims pk_aspnetuserclaims; Type: CONSTRAINT; Schema: public; Owner: GetInspired
 --
 
-ALTER TABLE ONLY public."AvailableDates"
-    ADD CONSTRAINT "User_Availabilty" FOREIGN KEY ("UserId") REFERENCES public."AspNetUsers"("Id") ON DELETE CASCADE;
+ALTER TABLE ONLY public.aspnetuserclaims
+    ADD CONSTRAINT pk_aspnetuserclaims PRIMARY KEY (id);
 
 
--- Completed on 2022-06-24 11:31:16
+--
+-- TOC entry 3213 (class 2606 OID 16570)
+-- Name: aspnetuserlogins pk_aspnetuserlogins; Type: CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetuserlogins
+    ADD CONSTRAINT pk_aspnetuserlogins PRIMARY KEY (loginprovider, providerkey);
+
+
+--
+-- TOC entry 3216 (class 2606 OID 16583)
+-- Name: aspnetuserroles pk_aspnetuserroles; Type: CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetuserroles
+    ADD CONSTRAINT pk_aspnetuserroles PRIMARY KEY (userid, roleid);
+
+
+--
+-- TOC entry 3203 (class 2606 OID 16533)
+-- Name: aspnetusers pk_aspnetusers; Type: CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetusers
+    ADD CONSTRAINT pk_aspnetusers PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3218 (class 2606 OID 16601)
+-- Name: aspnetusertokens pk_aspnetusertokens; Type: CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetusertokens
+    ADD CONSTRAINT pk_aspnetusertokens PRIMARY KEY (userid, loginprovider, name);
+
+
+--
+-- TOC entry 3201 (class 1259 OID 16535)
+-- Name: emailindex; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE INDEX emailindex ON public.aspnetusers USING btree (normalizedemail);
+
+
+--
+-- TOC entry 3205 (class 1259 OID 16549)
+-- Name: ix_aspnetroleclaims_roleid; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE INDEX ix_aspnetroleclaims_roleid ON public.aspnetroleclaims USING btree (roleid);
+
+
+--
+-- TOC entry 3208 (class 1259 OID 16563)
+-- Name: ix_aspnetuserclaims_userid; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE INDEX ix_aspnetuserclaims_userid ON public.aspnetuserclaims USING btree (userid);
+
+
+--
+-- TOC entry 3211 (class 1259 OID 16576)
+-- Name: ix_aspnetuserlogins_userid; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE INDEX ix_aspnetuserlogins_userid ON public.aspnetuserlogins USING btree (userid);
+
+
+--
+-- TOC entry 3214 (class 1259 OID 16594)
+-- Name: ix_aspnetuserroles_roleid; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE INDEX ix_aspnetuserroles_roleid ON public.aspnetuserroles USING btree (roleid);
+
+
+--
+-- TOC entry 3200 (class 1259 OID 16526)
+-- Name: rolenameindex; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE UNIQUE INDEX rolenameindex ON public.aspnetroles USING btree (normalizedname) WHERE (normalizedname IS NOT NULL);
+
+
+--
+-- TOC entry 3204 (class 1259 OID 16534)
+-- Name: usernameindex; Type: INDEX; Schema: public; Owner: GetInspired
+--
+
+CREATE UNIQUE INDEX usernameindex ON public.aspnetusers USING btree (normalizedusername) WHERE (normalizedusername IS NOT NULL);
+
+
+--
+-- TOC entry 3223 (class 2606 OID 16544)
+-- Name: aspnetroleclaims fk_aspnetroleclaims_aspnetroles_roleid; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetroleclaims
+    ADD CONSTRAINT fk_aspnetroleclaims_aspnetroles_roleid FOREIGN KEY (roleid) REFERENCES public.aspnetroles(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3224 (class 2606 OID 16558)
+-- Name: aspnetuserclaims fk_aspnetuserclaims_aspnetusers_userid; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetuserclaims
+    ADD CONSTRAINT fk_aspnetuserclaims_aspnetusers_userid FOREIGN KEY (userid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3225 (class 2606 OID 16571)
+-- Name: aspnetuserlogins fk_aspnetuserlogins_aspnetusers_userid; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetuserlogins
+    ADD CONSTRAINT fk_aspnetuserlogins_aspnetusers_userid FOREIGN KEY (userid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3226 (class 2606 OID 16584)
+-- Name: aspnetuserroles fk_aspnetuserroles_aspnetroles_roleid; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetuserroles
+    ADD CONSTRAINT fk_aspnetuserroles_aspnetroles_roleid FOREIGN KEY (roleid) REFERENCES public.aspnetroles(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3227 (class 2606 OID 16589)
+-- Name: aspnetuserroles fk_aspnetuserroles_aspnetusers_userid; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetuserroles
+    ADD CONSTRAINT fk_aspnetuserroles_aspnetusers_userid FOREIGN KEY (userid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3228 (class 2606 OID 16602)
+-- Name: aspnetusertokens fk_aspnetusertokens_aspnetusers_userid; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.aspnetusertokens
+    ADD CONSTRAINT fk_aspnetusertokens_aspnetusers_userid FOREIGN KEY (userid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3230 (class 2606 OID 16627)
+-- Name: bookings fk_bookings_aspnetusers_userid_customer; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.bookings
+    ADD CONSTRAINT fk_bookings_aspnetusers_userid_customer FOREIGN KEY (customerid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3231 (class 2606 OID 16632)
+-- Name: bookings fk_bookings_aspnetusers_userid_supervisor; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.bookings
+    ADD CONSTRAINT fk_bookings_aspnetusers_userid_supervisor FOREIGN KEY (supervisorid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3229 (class 2606 OID 16615)
+-- Name: availabledates user_availabilty; Type: FK CONSTRAINT; Schema: public; Owner: GetInspired
+--
+
+ALTER TABLE ONLY public.availabledates
+    ADD CONSTRAINT user_availabilty FOREIGN KEY (userid) REFERENCES public.aspnetusers(id) ON DELETE CASCADE;
+
+
+-- Completed on 2022-06-27 13:45:03
 
 --
 -- PostgreSQL database dump complete

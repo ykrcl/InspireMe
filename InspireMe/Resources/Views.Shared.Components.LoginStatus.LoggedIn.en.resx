@@ -132,4 +132,7 @@
   <data name="Parola Değiştir" xml:space="preserve">
     <value>Change Password</value>
   </data>
+  <data name="Çıkış Yap" xml:space="preserve">
+    <value>Log Out</value>
+  </data>
 </root>

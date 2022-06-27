@@ -120,6 +120,9 @@
   <data name="Bu alan gereklidir" xml:space="preserve">
     <value>This field is required</value>
   </data>
+  <data name="Danışman Üyeliği" xml:space="preserve">
+    <value>Supervisor Membership</value>
+  </data>
   <data name="E-Posta" xml:space="preserve">
     <value>E-Mail</value>
   </data>

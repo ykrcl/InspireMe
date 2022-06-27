@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDapperStores(builder.Configuration.GetConnectionString("InspireMeDb"));
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDapperStores(builder.Configuration.GetConnectionString("InspireMeDb")).AddDefaultTokenProviders();
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Password settings.
@@ -31,8 +31,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {
-        new CultureInfo("en-us"),
-        new CultureInfo("tr-tr")
+        new CultureInfo("tr"),
+        new CultureInfo("en-us")
     };
 
     options.DefaultRequestCulture = new RequestCulture(culture: "tr", uiCulture: "tr");
@@ -44,9 +44,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         var lang = context.GetRouteValue("lang");
         if (!(lang == null))
         {
-            if (lang == "en")
+            if (lang.ToString() == "en")
             {
-                return new ProviderCultureResult("en");
+                return new ProviderCultureResult("en-us");
             } 
        }
         return new ProviderCultureResult("tr");
@@ -69,6 +69,8 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 app.UseAuthentication();
+
+app.UseRequestLocalization();
 
 app.UseEndpoints(endpoints =>
 {
