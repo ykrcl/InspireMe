@@ -176,7 +176,7 @@ namespace InspireMe.Controllers
                     }
                     if (isAjax)
                     {
-                        return Json(new { success = true, alert = _localizer["Aramıza hoşgeldiniz!"].Value });
+                        return Json(new { success = true, redirect = Url.Action("Index","Accounts"), alert = _localizer["Aramıza hoşgeldiniz!"].Value });
                     }
                     else
                     {

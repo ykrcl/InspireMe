@@ -49,7 +49,6 @@ namespace InspireMe.Areas.Client.Controllers
                     claims = (await _userManager.GetClaimsAsync(lastbookingsupervisor)).Where(x => x.Type == "field").ToList();
                 }
             }
-           
                 List<Tuple<IList<IdentityUser>, Claim>> supervisors = new List<Tuple<IList<IdentityUser>, Claim>>();
                 foreach(var claim in claims)
                 {
@@ -78,6 +77,72 @@ namespace InspireMe.Areas.Client.Controllers
             ViewBag.Supervisors = supervisors;
             var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
             ViewBag.allfields = allfields;
+            if (isAjax)
+                return PartialView();
+            else
+                return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BookaMeeting(BookaMeetingViewModel obj)
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            if (ModelState.IsValid) {
+                IdentityUser supervisor;
+                try
+                {
+                    supervisor = await _userManager.FindByIdAsync(obj.UserId);
+
+                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId, obj.Date, obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
+                        Booking booking = new Booking();
+                        var user = await _userManager.GetUserAsync(HttpContext.User);
+                        booking.Hour = obj.Hour;
+                        booking.Date = obj.Date;
+                        booking.IsEnded = false;
+                        booking.IsStarted = false;
+                        booking.IsVerified = false;
+                        await bookingsTable.CreateAsync(booking, user.Id, supervisor.Id);
+                        if (isAjax)
+                        {
+                            return Json(new { success = true, redirect=Url.Action(""), alert = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir.!"].Value });
+                        }
+                        else
+                        {
+                            ViewBag.message = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir.!"].Value;
+                            ViewBag.title = _localizer["Görüşme Ayarla"].Value;
+                            return View("Message");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Date", _localizer["Seçilen Tarih ve Saat Uygun Değil!!!"]);
+                    }
+                }
+                catch
+                {
+                    ModelState.AddModelError("UserId", _localizer["Danışman bulunamadı"]);
+                }
+                
+            }
+            var fullhours = await bookingsTable.GetOccupiedHoursAsync(obj.UserId);
+            var availablehours = await availableDatesTable.GetUserAvailableDatesAsync(obj.UserId);
+            ViewBag.fullhours = fullhours;
+            ViewBag.availablehours = availablehours;
+            if (isAjax)
+                return PartialView(obj);
+            else
+                return View(obj);
+        }
+
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetAvailableDates(string id)
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+            var fullhours = await bookingsTable.GetOccupiedHoursAsync(id);
+            var availablehours = await availableDatesTable.GetUserAvailableDatesAsync(id);
+            ViewBag.fullhours = fullhours;
+            ViewBag.availablehours = availablehours;
             if (isAjax)
                 return PartialView();
             else
