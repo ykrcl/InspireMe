@@ -104,11 +104,11 @@ namespace InspireMe.Areas.Client.Controllers
                         await bookingsTable.CreateAsync(booking, user.Id, supervisor.Id);
                         if (isAjax)
                         {
-                            return Json(new { success = true, redirect=Url.Action(""), alert = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir.!"].Value });
+                            return Json(new { success = true, redirect=Url.Action(""), alert = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir."].Value });
                         }
                         else
                         {
-                            ViewBag.message = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir.!"].Value;
+                            ViewBag.message = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir."].Value;
                             ViewBag.title = _localizer["Görüşme Ayarla"].Value;
                             return View("Message");
                         }
