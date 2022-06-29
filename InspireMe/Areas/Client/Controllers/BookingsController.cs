@@ -140,8 +140,11 @@ namespace InspireMe.Areas.Client.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             try { 
-            var fullhours = await bookingsTable.GetOccupiedHoursAsync(id);
-            var availablehours = await availableDatesTable.GetUserAvailableDatesAsync(id);
+            var fullhours = (await bookingsTable.GetOccupiedHoursAsync(id)).GroupBy(x=>x.Date).ToDictionary(x=>x.Key.ToString("dd_MM_yyyy"), x=>x.Select(f=>f.Hour).ToList());
+            var availablehours = (await availableDatesTable.GetUserAvailableDatesAsync(id)).GroupBy(x=>x.Day).ToDictionary(x=>x.Key.ToString(), x=>x.Select(f=> new {
+                hour = f.Hour,
+                price = f.Price
+            }));
             ViewBag.fullhours = fullhours;
             ViewBag.availablehours = availablehours;
             var user = await _userManager.FindByIdAsync(id);

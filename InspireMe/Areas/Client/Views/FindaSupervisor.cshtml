@@ -45,7 +45,7 @@
                 @Html.DisplayFor(modelItem => field.Item2)
             </td>
             <td>
-                <a data-ajax data-target="ContentPage" class="btn btn-primary" asp-area="Client" asp-controller="Bookings" asp-action="BookaMeeting" asp-route-id="@item.Id">@Localizer["Randevu Al"]</a>
+                <a data-ajax data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-primary" asp-area="Client" asp-controller="Bookings" asp-action="BookaMeeting" asp-route-id="@item.Id">@Localizer["Randevu Al"]</a>
             </td>
         </tr>             
             }
