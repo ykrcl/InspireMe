@@ -1,0 +1,57 @@
+﻿@model InspireMe.Models.SearchSupervisorViewModel
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+
+@{
+    ViewData["Title"] = @Localizer["Danışman Bul"];
+    var allfields = System.Text.Json.JsonSerializer.Serialize(ViewBag.allfields);
+    Model.supervisors = ViewBag.Supervisors;
+}
+
+<h1>@Localizer["Danışman Bul"]</h1>
+<div class="container">
+
+    <div class="card">
+  <div class="card-body">
+    <div class="card"> 
+        <form asp-action="FindaSupervisor" asp-controller="Bookings" asp-area="Client"  method="post" data-ajaxform data-parentid="ContentPage" class="d-flex">
+        <input  asp-for="fields" class="form-control me-2" type="search" placeholder="@Localizer["İlgi Alanları"]" aria-label="Search">
+        <button asp-for="fields" class="btn btn-outline-success" type="submit">@Localizer["Ara"]</button>
+      </form>
+      <span asp-validation-for="fields" class="text-danger"></span>
+    </div>
+</div>
+  <div class="card-body">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Localizer["Danışman Adı"]
+            </th>
+            <th>@Localizer["Danışman Alanları"]</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var field in Model.supervisors) {
+            @foreach (var item in field.Item1) { 
+                        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => field.Item2)
+            </td>
+            <td>
+                <a data-ajax data-target="ContentPage" class="btn btn-primary" asp-area="Client" asp-controller="Bookings" asp-action="BookaMeeting" asp-route-id="@item.Id">@Localizer["Randevu Al"]</a>
+            </td>
+        </tr>             
+            }
+}
+    </tbody>
+</table>
+ </div>
+</div>
+</div>

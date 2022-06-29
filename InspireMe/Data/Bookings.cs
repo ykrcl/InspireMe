@@ -128,12 +128,12 @@ namespace InspireMe.Data
             return bookings;
         }
 
-        public virtual async Task<bool> CheckAvailabilityExistsAsync(string SupervisorId, DateOnly Date, int Hour)
+        public virtual async Task<bool> CheckAvailabilityExistsAsync(string SupervisorId, string CustomerId, DateOnly Date, int Hour)
         {
             const string sql = "SELECT count(1) " +
                                "FROM Bookings " +
-                               "WHERE SupervisorId = @SupervisorId AND Date=@Date AND Hour=@Hour;";
-            var role = !(await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { SupervisorId = SupervisorId, Date = Date, Hour = Hour }));
+                               "WHERE (SupervisorId = @SupervisorId OR CustomerId = @CustomerId) AND Date=@Date AND Hour=@Hour;";
+            var role = !(await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { SupervisorId = SupervisorId, CustomerId= CustomerId, Date = Date, Hour = Hour }));
             return role;
         }
 

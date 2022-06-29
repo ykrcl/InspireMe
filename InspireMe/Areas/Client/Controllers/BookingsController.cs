@@ -54,6 +54,7 @@ namespace InspireMe.Areas.Client.Controllers
                 {
                     supervisors.Add(new Tuple<IList<IdentityUser>, Claim>(await _userManager.GetUsersForClaimAsync(claim),claim));
                 }
+                 
                  ViewBag.Supervisors = supervisors;
             var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
             ViewBag.allfields = allfields;
@@ -84,7 +85,7 @@ namespace InspireMe.Areas.Client.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BookaMeeting(BookaMeetingViewModel obj)
+        public async Task<IActionResult> BookaMeeting(string id, BookaMeetingViewModel obj)
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             if (ModelState.IsValid) {
@@ -92,10 +93,10 @@ namespace InspireMe.Areas.Client.Controllers
                 try
                 {
                     supervisor = await _userManager.FindByIdAsync(obj.UserId);
-
-                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId, obj.Date, obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
+                    var user = await _userManager.GetUserAsync(HttpContext.User);
+                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId,user.Id , obj.Date, obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
                         Booking booking = new Booking();
-                        var user = await _userManager.GetUserAsync(HttpContext.User);
+                        
                         booking.Hour = obj.Hour;
                         booking.Date = obj.Date;
                         booking.IsEnded = false;
@@ -135,18 +136,28 @@ namespace InspireMe.Areas.Client.Controllers
         }
 
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetAvailableDates(string id)
+        public async Task<IActionResult> BookaMeeting(string id)
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-
+            try { 
             var fullhours = await bookingsTable.GetOccupiedHoursAsync(id);
             var availablehours = await availableDatesTable.GetUserAvailableDatesAsync(id);
             ViewBag.fullhours = fullhours;
             ViewBag.availablehours = availablehours;
+            var user = await _userManager.FindByIdAsync(id);
+            BookaMeetingViewModel model = new BookaMeetingViewModel();
+            model.UserId = id;
+            model.UserName = user.UserName;
             if (isAjax)
-                return PartialView();
+                return PartialView(model);
             else
-                return View();
+                return View(model);
+            }
+            catch
+            {
+                return RedirectToAction("Index", "Bookings", new { area = "Client" });
+            }
+            
         }
     }
 }
