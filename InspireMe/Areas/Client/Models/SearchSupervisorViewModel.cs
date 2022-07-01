@@ -11,6 +11,6 @@ namespace InspireMe.Models
         [Display(Name = "İlgi Alanları")]
         public string fields { get; set; }
         
-        public List<Tuple<IList<IdentityUser>, Claim>> supervisors { get; set; }
+        public List<Tuple<IdentityUser, IEnumerable<string>>> supervisors { get; set; }
     }
 }

@@ -116,6 +116,9 @@ $(document).ready(function () {
                 formsubmit = true;
             }
             if (formsubmit) {
+                if (typeof beforeloading !== "undefined") {
+                    eval(beforeloading)
+                }
                 $.ajax({
                     url: post_url,
                     type: request_method,
@@ -154,6 +157,9 @@ $(document).ready(function () {
                                     history.pushState({ url: response.redirect }, null, response.redirect);
                                     loadpage(response.redirect);
                                 }
+                            }
+                            if (typeof afterloading !== "undefined") {
+                                eval(afterloading)
                             }
                         }
                         else {

@@ -1,0 +1,61 @@
+﻿@model IEnumerable<InspireMe.Data.Booking>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] =  Localizer["Randevu Alınan Günler"];
+    var culture = System.Globalization.CultureInfo.CurrentCulture;
+}
+
+<h1>@Localizer["Randevu Alınan Günler"]</h1>
+
+<div class="container">
+
+    <div class="card">
+  <div class="card-body">
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            
+            <th>
+                @Html.DisplayNameFor(model => model.Date))
+            </th>
+            
+            <th>
+                @Html.DisplayNameFor(model => model.Hour)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer.UserName)
+            </th>
+            
+           
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            
+            <td>
+                @Html.DisplayFor(modelItem => item.Hour)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Customer.UserName)
+            </td>
+            
+           
+            <td>
+                 <a data-ajax data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="DeleteRequestedBooking" asp-route-id="@item.Id">@Localizer["Sil"]</a>
+                 <a data-ajax data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="VerifyRequestedBooking" asp-route-id="@item.Id">@Localizer["Onayla"]</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</div>
+</div>
+</div>

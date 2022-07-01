@@ -14,7 +14,7 @@ namespace InspireMe.Data
         }
 
         [Required]
-        [Range(0, 7)]
+        [Range(0, 6)]
         public int Day
         {
             get;

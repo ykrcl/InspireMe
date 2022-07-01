@@ -1,0 +1,31 @@
+﻿@model InspireMe.Models.DeleteBookingViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] =  Localizer["Toplantı Sil"];
+}
+
+<h4>@Localizer["Toplantı Sil"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="DeleteRequestedBooking" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.hide()" data-parentid="ContentPage">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+                <input asp-for="Id" type="hidden" class="form-control" />
+            
+            <div class="form-group">
+                <input type="submit" value="@Localizer["Sil"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a href="#" data-bs-dismiss="modal">@Localizer["Kapat"]</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

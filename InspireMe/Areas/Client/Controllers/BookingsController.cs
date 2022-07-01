@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InspireMe.Areas.Client.Controllers
 {
     [Area("Client")]
+    [Authorize]
     public class BookingsController : Controller
     {
         private readonly ILogger<BookingsController> _logger;
@@ -49,11 +51,12 @@ namespace InspireMe.Areas.Client.Controllers
                     claims = (await _userManager.GetClaimsAsync(lastbookingsupervisor)).Where(x => x.Type == "field").ToList();
                 }
             }
-                List<Tuple<IList<IdentityUser>, Claim>> supervisors = new List<Tuple<IList<IdentityUser>, Claim>>();
-                foreach(var claim in claims)
+            List<Tuple<IdentityUser, IEnumerable<string>>> supervisors = new List<Tuple<IdentityUser, IEnumerable<string>>>();
+            foreach (var claim in claims)
                 {
-                    supervisors.Add(new Tuple<IList<IdentityUser>, Claim>(await _userManager.GetUsersForClaimAsync(claim),claim));
-                }
+                var _supervisors = (await _userManager.GetUsersForClaimAsync(claim)).Select((x) => new Tuple<IdentityUser, IEnumerable<string>>(x, (_userManager.GetClaimsAsync(x).Result).Where(f => f.Type == "field").Select(f => f.Value)));
+                supervisors.AddRange(_supervisors);
+            }
                  
                  ViewBag.Supervisors = supervisors;
             var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
@@ -69,11 +72,12 @@ namespace InspireMe.Areas.Client.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var fields = obj.fields.Split(',').Select(p => p.Trim()).ToList();
-            List<Tuple<IList<IdentityUser>, Claim>> supervisors = new List<Tuple<IList<IdentityUser>, Claim>>();
+            List<Tuple<IdentityUser, IEnumerable<string>>> supervisors = new List<Tuple<IdentityUser, IEnumerable<string>>>();
             foreach (var field in fields)
             {
                 var claim = new Claim("field", field);
-                supervisors.Add(new Tuple<IList<IdentityUser>, Claim>(await _userManager.GetUsersForClaimAsync(claim), claim));
+                var _supervisors = (await _userManager.GetUsersForClaimAsync(claim)).Select((x)=> new Tuple<IdentityUser, IEnumerable<string>>(x, (_userManager.GetClaimsAsync(x).Result).Where(f=>f.Type=="field").Select(f=>f.Value)));
+                supervisors.AddRange(_supervisors);
             }
             ViewBag.Supervisors = supervisors;
             var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
@@ -88,12 +92,12 @@ namespace InspireMe.Areas.Client.Controllers
         public async Task<IActionResult> BookaMeeting(string id, BookaMeetingViewModel obj)
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            var user = await _userManager.GetUserAsync(HttpContext.User);
             if (ModelState.IsValid) {
                 IdentityUser supervisor;
                 try
                 {
                     supervisor = await _userManager.FindByIdAsync(obj.UserId);
-                    var user = await _userManager.GetUserAsync(HttpContext.User);
                     if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId,user.Id , obj.Date, obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
                         Booking booking = new Booking();
                         
@@ -105,7 +109,7 @@ namespace InspireMe.Areas.Client.Controllers
                         await bookingsTable.CreateAsync(booking, user.Id, supervisor.Id);
                         if (isAjax)
                         {
-                            return Json(new { success = true, redirect=Url.Action(""), alert = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir."].Value });
+                            return Json(new { success = true, alert = _localizer["Kayıt Alındı. Danışman Onaylayınca Bildirim Gönderilecektir."].Value });
                         }
                         else
                         {
@@ -125,10 +129,11 @@ namespace InspireMe.Areas.Client.Controllers
                 }
                 
             }
-            var fullhours = await bookingsTable.GetOccupiedHoursAsync(obj.UserId);
-            var availablehours = await availableDatesTable.GetUserAvailableDatesAsync(obj.UserId);
-            ViewBag.fullhours = fullhours;
-            ViewBag.availablehours = availablehours;
+            var fullhours = (await bookingsTable.GetOccupiedHoursAsync(id, user.Id)).GroupBy(x => x.Date).ToDictionary(x => x.Key.ToString("dd_MM_yyyy"), x => x.Select(f => f.Hour).ToList());
+            var availablehours = (await availableDatesTable.GetUserAvailableDatesAsync(id)).GroupBy(x => x.Day).OrderBy(x=>x.Key).ToDictionary(x => x.Key.ToString(), x => x.OrderBy(f=>f.Hour).Select(f => new {
+                hour = f.Hour,
+                price = f.Price
+            }));
             if (isAjax)
                 return PartialView(obj);
             else
@@ -139,22 +144,23 @@ namespace InspireMe.Areas.Client.Controllers
         public async Task<IActionResult> BookaMeeting(string id)
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            try { 
-            var fullhours = (await bookingsTable.GetOccupiedHoursAsync(id)).GroupBy(x=>x.Date).ToDictionary(x=>x.Key.ToString("dd_MM_yyyy"), x=>x.Select(f=>f.Hour).ToList());
-            var availablehours = (await availableDatesTable.GetUserAvailableDatesAsync(id)).GroupBy(x=>x.Day).ToDictionary(x=>x.Key.ToString(), x=>x.Select(f=> new {
+            try {
+                var user = await _userManager.GetUserAsync(HttpContext.User);
+                var fullhours = (await bookingsTable.GetOccupiedHoursAsync(id,user.Id)).GroupBy(x=>x.Date).ToDictionary(x=>x.Key.ToString("dd_MM_yyyy"), x=>x.Select(f=>f.Hour).ToList());
+                var availablehours = (await availableDatesTable.GetUserAvailableDatesAsync(id)).GroupBy(x=>x.Day).ToDictionary(x=>x.Key.ToString(), x=>x.Select(f=> new {
                 hour = f.Hour,
                 price = f.Price
-            }));
-            ViewBag.fullhours = fullhours;
-            ViewBag.availablehours = availablehours;
-            var user = await _userManager.FindByIdAsync(id);
-            BookaMeetingViewModel model = new BookaMeetingViewModel();
-            model.UserId = id;
-            model.UserName = user.UserName;
-            if (isAjax)
-                return PartialView(model);
-            else
-                return View(model);
+                }));
+                ViewBag.fullhours = fullhours;
+                ViewBag.availablehours = availablehours;
+                var supervisoruser = await _userManager.FindByIdAsync(id);
+                BookaMeetingViewModel model = new BookaMeetingViewModel();
+                model.UserId = id;
+                model.UserName = supervisoruser.UserName;
+                if (isAjax)
+                    return PartialView(model);
+                else
+                    return View(model);
             }
             catch
             {

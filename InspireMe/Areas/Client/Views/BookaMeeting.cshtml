@@ -14,7 +14,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="BookaMeeting" asp-controller="Bookings" asp-area="Client"  method="post" data-ajaxform data-parentid="ContentPage">
+        <form asp-action="BookaMeeting" asp-controller="Bookings" asp-area="Client"  method="post" data-ajaxform data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.hide()" data-parentid="ContentPage">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input asp-for="UserId" type="hidden"  />
             <div class="form-group">
@@ -65,6 +65,10 @@
                                 if (fulldays[parseddate]!==undefined){
                                     if(fulldays[parseddate].indexOf(day.hour) == -1){
                                         var option = $('<option></option>').attr("value", day.hour).text(day.hour.toString() + ": =>" + day.price.toString()+ "TL");
+                                        $("#Hour").append(option);
+                                    }
+                                    else{
+                                        var option = $('<option></option>').attr("value", day.hour).attr("disabled","disabled").text(day.hour.toString() + ": =>" +  "DOLU");
                                         $("#Hour").append(option);
                                     }
                                 }

@@ -1,8 +1,10 @@
 using InspireMe.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using System.Globalization;
+using InspireMe.Areas.Meeting.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +28,10 @@ builder.Services.AddFluentEmail(emailconf.GetValue<string>("FromMail")).AddSmtpS
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddAntiforgery();
 builder.Services.AddMvc().AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix).AddDataAnnotationsLocalization();
-
+builder.Services.AddSignalR().AddHubOptions<MeetingHub>(opts =>
+{
+    opts.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+});
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
@@ -52,7 +57,14 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         return new ProviderCultureResult("tr");
     }));
 });
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        "CanConnectMeetingsHub",
+        policyBuilder => policyBuilder.AddRequirements(
+            new MeetingConnectionsRequirement()));
+});
+builder.Services.AddScoped<IAuthorizationHandler, HasMeetingHandler>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -74,6 +86,7 @@ app.UseRequestLocalization();
 
 app.UseEndpoints(endpoints =>
 {
+    endpoints.MapHub<MeetingHub>("/Meetings/MeetingsHub");
     endpoints.MapControllerRoute(
       name: "areas",
       pattern: "{lang=tr}/{area:exists}/{controller=Home}/{action=Index}/{id?}"

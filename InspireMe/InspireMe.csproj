@@ -22,10 +22,8 @@
 
   <ItemGroup>
     <Folder Include="Areas\Client\Data\" />
-    <Folder Include="Areas\Supervisor\Controllers\" />
+    <Folder Include="Areas\Meeting\Data\" />
     <Folder Include="Areas\Supervisor\Data\" />
-    <Folder Include="Areas\Supervisor\Models\" />
-    <Folder Include="Areas\Supervisor\Views\" />
   </ItemGroup>
 
 </Project>

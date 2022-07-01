@@ -42,7 +42,7 @@ namespace InspireMe.Data
         }
 
         [Required(ErrorMessage = "Saat Boş Olamaz!")]
-        [Range(0, 24)]
+        [Range(0, 23)]
         public int Hour
         {
             get;
@@ -98,12 +98,12 @@ namespace InspireMe.Data
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> DeleteAsync(Guid objId)
+        public virtual async Task<bool> DeleteAsync(Guid objId, string SupervisorId)
         {
             const string sql = "DELETE " +
                                "FROM Bookings " +
-                               "WHERE Id = @Id;";
-            var rowsDeleted = await DbConnection.ExecuteAsync(sql, new { Id = objId });
+                               "WHERE Id = @Id AND SupervisorId = @SupervisorId AND (Date>current_date - 1);";
+            var rowsDeleted = await DbConnection.ExecuteAsync(sql, new { Id = objId, SupervisorId= SupervisorId });
             return rowsDeleted == 1;
         }
 
@@ -113,7 +113,7 @@ namespace InspireMe.Data
             const string sql = "SELECT * " +
                                "FROM Bookings b " +
                                "inner join AspNetUsers customers on customers.Id = b.CustomerId " +
-                               "WHERE SupervisorId = @SupervisorId;";
+                               "WHERE SupervisorId = @SupervisorId AND (Date>current_date - 1);";
             var bookings = await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Customer = user; return booking; }, new { SupervisorId = SupervisorId });
             return bookings;
         }
@@ -123,10 +123,46 @@ namespace InspireMe.Data
             const string sql = "SELECT * " +
                                "FROM Bookings b " +
                                "inner join AspNetUsers supervisors on supervisors.Id = b.SupervisorId " +
-                               "WHERE CustomerId = @CustomerId;";
+                               "WHERE CustomerId = @CustomerId AND (Date>current_date - 1);";
             var bookings = await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Supervisor = user; return booking; }, new { CustomerId = CustomerId });
             return bookings;
         }
+
+        public virtual async Task<Booking> FindBookingByIdAsync(Guid Id)
+        {
+            const string sql = "SELECT * " +
+                               "FROM Bookings" +
+                               "WHERE Id = @Id;";
+            var bookings = await DbConnection.QueryFirstOrDefaultAsync<Booking>(sql, new { Id = Id });
+            return bookings;
+        }
+        public virtual async Task<Booking> FindBookingByIdBindCustomerAsync(Guid Id)
+        {
+            const string sql = "SELECT * " +
+                               "FROM Bookings b " +
+                               "inner join AspNetUsers customers on customers.Id = b.CustomerId " +
+                               "WHERE b.Id = @Id;";
+            var bookings = (await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Customer = user; return booking; }, new { Id = Id })).FirstOrDefault();
+            return bookings;
+        }
+        public virtual async Task<Booking> FindBookingByIdBindSupervisorAsync(Guid Id)
+        {
+            const string sql = "SELECT * " +
+                               "FROM Bookings b " +
+                               "inner join AspNetUsers supervisors on supervisors.Id = b.SupervisorId " +
+                               "WHERE b.Id = @Id;";
+            var bookings = (await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Customer = user; return booking; }, new { Id = Id })).FirstOrDefault();
+            return bookings;
+        }
+        public virtual async Task<Booking> FindBookingByConnectionId(String Id)
+        {
+            const string sql = "SELECT * " +
+                               "FROM Bookings " +
+                               "WHERE CustomerRTCId = @Id OR SupervisorId= @Id;";
+            var bookings = await DbConnection.QueryFirstOrDefaultAsync<Booking>(sql, new { Id = Id });
+            return bookings;
+        }
+
 
         public virtual async Task<bool> CheckAvailabilityExistsAsync(string SupervisorId, string CustomerId, DateOnly Date, int Hour)
         {
@@ -136,27 +172,46 @@ namespace InspireMe.Data
             var role = !(await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { SupervisorId = SupervisorId, CustomerId= CustomerId, Date = Date, Hour = Hour }));
             return role;
         }
-
-        public virtual async Task<IEnumerable<Booking>> GetOccupiedHoursAsync(string SupervisorId)
+        public virtual async Task<bool> CheckCustomerHasMeetingAsync(string CustomerId)
         {
-            const string sql = "SELECT *" +
+            const string sql = "SELECT count(1) " +
                                "FROM Bookings " +
-                               "WHERE SupervisorId = @SupervisorId AND( (Date>current_date - 1)  OR (Date=current_date AND Hour>=@Hour));";
-            var role = await DbConnection.QueryAsync<Booking>(sql, new { SupervisorId = SupervisorId, Hour = DateTime.Now.Hour });
+                               "WHERE (CustomerId = @CustomerId) AND ((Date=current_date AND Hour=@Hour) OR (IsStarted=TRUE AND IsEnded=FALSE AND IsVerified=TRUE)) ;";
+            var role = (await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { Hour = DateTime.Now.Hour }));
+            return role;
+        }
+
+        public virtual async Task<bool> CheckSupervisorHasMeetingAsync(string SupervisorId)
+        {
+            const string sql = "SELECT count(1) " +
+                               "FROM Bookings " +
+                               "WHERE (SupervisorId = @SupervisorId) AND ((Date=current_date AND Hour=@Hour) OR (IsEnded=FALSE AND IsVerified=TRUE)) ;";
+            var role = (await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { Hour = DateTime.Now.Hour }));
             return role;
         }
 
 
-        public virtual async Task<bool> VerifyBooking(Guid objId)
+        public virtual async Task<IEnumerable<Booking>> GetOccupiedHoursAsync(string SupervisorId, string CustomerId)
+        {
+            const string sql = "SELECT *" +
+                               "FROM Bookings " +
+                               "WHERE (SupervisorId = @SupervisorId OR CustomerId=@CustomerId) AND( (Date>current_date - 1)  OR (Date=current_date AND Hour>=@Hour));";
+            var role = await DbConnection.QueryAsync<Booking>(sql, new { SupervisorId = SupervisorId, Hour = DateTime.Now.Hour, CustomerId= CustomerId });
+            return role;
+        }
+
+
+        public virtual async Task<bool> VerifyBooking(Guid objId, string SupervisorId)
         {
             const string updateRoleSql = "UPDATE Bookings " +
                                          "SET IsVerified= TRUE " +
-                                         "WHERE Id = @Id;";
+                                         "WHERE Id = @Id AND SupervisorId=@SupervisorId;";
             using (var transaction = DbConnection.BeginTransaction())
             {
                 await DbConnection.ExecuteAsync(updateRoleSql, new
                 {
                    Id = objId,
+                    SupervisorId= SupervisorId
 
                 }, transaction);
 
@@ -173,7 +228,176 @@ namespace InspireMe.Data
             return true;
         }
 
+        public virtual async Task<bool> StartMeetingAsync(Guid Id)
+        {
+            const string updateRoleSql = "UPDATE Bookings " +
+                                         "SET IsStarted = TRUE" +
+                                         "WHERE Id = @Id;";
+            using (var transaction = DbConnection.BeginTransaction())
+            {
+                await DbConnection.ExecuteAsync(updateRoleSql, new
+                {
+                   Id= Id
 
+                }, transaction);
+
+                try
+                {
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public virtual async Task<bool> EndMeetingAsync(Guid Id)
+        {
+            const string updateRoleSql = "UPDATE Bookings " +
+                                         "SET IsEnded = TRUE" +
+                                         "WHERE Id = @Id;";
+            using (var transaction = DbConnection.BeginTransaction())
+            {
+                await DbConnection.ExecuteAsync(updateRoleSql, new
+                {
+                    Id = Id
+
+                }, transaction);
+
+                try
+                {
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            return true;
+        }
+        public virtual async Task<bool> ConnectCustomertoMeetingAsync(string CustomerRTCId, Guid Id)
+        {
+            const string updateRoleSql = "UPDATE Bookings " +
+                                         "SET CustomerRTCId = NULL" +
+                                         "WHERE CustomerRTCId = @CustomerRTCId;" +
+                                         "UPDATE Bookings " +
+                                         "SET SupervisorRTCId = NULL" +
+                                         "WHERE SupervisorRTCId = @CustomerRTCId;" +
+                                         "UPDATE Bookings " +
+                                         "SET CustomerRTCId=@CustomerRTCId" +
+                                         "WHERE Id = @Id;";
+            using (var transaction = DbConnection.BeginTransaction())
+            {
+                await DbConnection.ExecuteAsync(updateRoleSql, new
+                {
+                    CustomerRTCId=CustomerRTCId,
+                    Id= Id
+
+                }, transaction);
+
+                try
+                {
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public virtual async Task<bool> DisconnectConnectfromMeetingAsync(string RTCId)
+        {
+            const string updateRoleSql = "UPDATE Bookings " +
+                                         "SET CustomerRTCId = NULL" +
+                                         "WHERE CustomerRTCId = @RTCId;" +
+                                         "UPDATE Bookings " +
+                                         "SET SupervisorRTCId = NULL" +
+                                         "WHERE SupervisorRTCId = @RTCIdRTCId;";
+                                         
+            using (var transaction = DbConnection.BeginTransaction())
+            {
+                await DbConnection.ExecuteAsync(updateRoleSql, new
+                {
+                    RTCId = RTCId
+                }, transaction);
+
+                try
+                {
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            return true;
+        }
+        public virtual async Task<bool> ConnectSupervisortoMeetingAsync(string SupervisorRTCId, Guid Id)
+        {
+            const string updateRoleSql = "UPDATE Bookings " +
+                                         "SET SupervisorRTCId = NULL" +
+                                         "WHERE SupervisorRTCId = @SupervisorRTCId;" +
+                                         "UPDATE Bookings " +
+                                         "SET CustomerRTCId = NULL" +
+                                         "WHERE CustomerRTCId = @SupervisorRTCId;" +
+                                         "UPDATE Bookings " +
+                                         "SET SupervisorRTCId=@SupervisorRTCId" +
+                                         "WHERE Id = @Id;";
+            using (var transaction = DbConnection.BeginTransaction())
+            {
+                await DbConnection.ExecuteAsync(updateRoleSql, new
+                {
+                    SupervisorRTCId = SupervisorRTCId,
+                    Id = Id
+
+                }, transaction);
+
+                try
+                {
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            return true;
+        }
+        public virtual async Task<bool> UpdateChatHistoryMeetingAsync(string ChatHistory, Guid Id)
+        {
+            const string updateRoleSql = "UPDATE Bookings " +
+                                         "SET ChatHistory=@ChatHistory" +
+                                         "WHERE Id = @Id;";
+            using (var transaction = DbConnection.BeginTransaction())
+            {
+                await DbConnection.ExecuteAsync(updateRoleSql, new
+                {
+                    ChatHistory = ChatHistory,
+                    Id = Id
+
+                }, transaction);
+
+                try
+                {
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            return true;
+        }
         /// <inheritdoc/>
         public virtual async Task<bool> UpdateAsync(Booking obj, string CustomerId, string SupervisorId )
         {

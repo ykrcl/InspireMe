@@ -12,6 +12,8 @@ namespace InspireMe.Models
         public string UserName { get; set; }
         [Display(Name = "Görüşme Tarihi")]
         [Required(ErrorMessage ="Bu alan gereklidir!")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy}")]
         public DateOnly Date { get; set; }
 
         [Display(Name = "Görüşme Saati")]
