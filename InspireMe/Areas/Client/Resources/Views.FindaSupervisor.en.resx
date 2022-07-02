@@ -120,6 +120,9 @@
   <data name="Ara" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="Ayarlanan Görüşmeler" xml:space="preserve">
+    <value>Upcoming Meetings</value>
+  </data>
   <data name="Danışman Adı" xml:space="preserve">
     <value>Supervisor Name</value>
   </data>

@@ -9,6 +9,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using InspireMe.Identity;
 using Dapper;
+using Microsoft.AspNetCore.SignalR;
+using InspireMe.Hubs;
 
 namespace InspireMe.Controllers
 {
@@ -48,8 +50,10 @@ namespace InspireMe.Controllers
         private readonly IStringLocalizer<AccountsController> _localizer;
         private readonly IFluentEmailFactory _emailFactory;
         private readonly IUserClaimsTable<string, IdentityUserClaim<string>> _userClaimsTable;
-        
-        public AccountsController(ILogger<AccountsController> logger, IDatabaseConnectionFactory connectionFactory, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> loginManager, RoleManager<IdentityRole> roleManager, IStringLocalizer<AccountsController> localizer, IFluentEmailFactory emailFactory, IUserClaimsTable<string, IdentityUserClaim<string>> userClaimsTable)
+        private readonly IHubContext<SiteNotificationConnection> _NotificationhubContext;
+        private readonly IUserConnectionManager _userConnectionManager;
+
+        public AccountsController(ILogger<AccountsController> logger, IUserConnectionManager userConnectionManager, IHubContext<SiteNotificationConnection> NotificationhubContext, IDatabaseConnectionFactory connectionFactory, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> loginManager, RoleManager<IdentityRole> roleManager, IStringLocalizer<AccountsController> localizer, IFluentEmailFactory emailFactory, IUserClaimsTable<string, IdentityUserClaim<string>> userClaimsTable)
         {
             _logger = logger;
             _emailFactory = emailFactory;
@@ -59,6 +63,8 @@ namespace InspireMe.Controllers
             _loginManager = loginManager;
             _roleManager = roleManager;
             _userClaimsTable = userClaimsTable;
+            _userConnectionManager = userConnectionManager;
+            _NotificationhubContext = NotificationhubContext;
         }
         
         
@@ -418,7 +424,16 @@ namespace InspireMe.Controllers
                     return View();
             }
             else {
+                var user = await _userManager.GetUserAsync(HttpContext.User);
                 await _loginManager.SignOutAsync();
+                try { 
+                var connections = _userConnectionManager.GetUserConnections(user.Id);
+                foreach (var connection in connections)
+                {
+                    await _NotificationhubContext.Clients.Client(connection).SendAsync("EndConnection", true);
+                }
+                }
+                catch { }
                 if (isAjax)
                 {
                     return Json(new { success = true, updatelogin = true, alert = _localizer["Güle Güle!"].Value, redirect = Url.Action("Index", "Accounts") });

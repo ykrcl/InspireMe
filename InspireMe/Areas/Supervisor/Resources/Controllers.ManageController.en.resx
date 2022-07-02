@@ -138,11 +138,29 @@
   <data name="Toplantı bulunamadı." xml:space="preserve">
     <value>Meeting couldn't be found.</value>
   </data>
+  <data name="Toplantı Doğrulandı" xml:space="preserve">
+    <value>Meeting is approved</value>
+  </data>
+  <data name="Toplantı isteğinizi onayladı" xml:space="preserve">
+    <value>approved your meeting request.</value>
+  </data>
+  <data name="Toplantı isteğinizi reddetti." xml:space="preserve">
+    <value>denied your meeting request.</value>
+  </data>
   <data name="Toplantı Onayla" xml:space="preserve">
     <value>Verify Meeting</value>
   </data>
+  <data name="Toplantı Reddedildi" xml:space="preserve">
+    <value>Meeting Denied</value>
+  </data>
   <data name="Toplantı Sil" xml:space="preserve">
     <value>Delete Meeting</value>
+  </data>
+  <data name="Toplantı İsteğiniz Onaylandı." xml:space="preserve">
+    <value>Booking is verified.</value>
+  </data>
+  <data name="Toplantı İsteğiniz Reddedildi." xml:space="preserve">
+    <value>Booking is denied.</value>
   </data>
   <data name="Yanlış obje id'si." xml:space="preserve">
     <value>Object couldn't be found.</value>

@@ -118,6 +118,17 @@ namespace InspireMe.Data
             return bookings;
         }
 
+        public virtual async Task<IEnumerable<Booking>> GetUpcomingMeetings()
+        {
+            const string sql = "SELECT * " +
+                               "FROM Bookings b " +
+                               "inner join AspNetUsers customers on customers.Id = b.CustomerId " +
+                               "inner join AspNetUsers supervisors on supervisors.Id = b.SupervisorId " +
+                               "WHERE (Date = current_date AND Hour =@Hour) OR (Date = current_date + 1 AND Hour = 0);";
+            var bookings = await DbConnection.QueryAsync<Booking, IdentityUser, IdentityUser, Booking>(sql, (booking, user, user2) => { booking.Customer = user; booking.Supervisor = user2; return booking; }, new { Hour = DateTime.Now.Hour + 1 });
+            return bookings;
+        }
+
         public virtual async Task<IEnumerable<Booking>> GetCustomerBookingsAsync(string CustomerId)
         {
             const string sql = "SELECT * " +

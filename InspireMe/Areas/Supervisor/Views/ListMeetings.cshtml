@@ -1,0 +1,75 @@
+﻿@model List<InspireMe.Data.Booking>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Görüşmeler"];
+    var activeMeetings = Model.Where(x => ((x.Date == DateOnly.FromDateTime(DateTime.Now) && x.Hour == DateTime.Now.Hour) || (x.IsStarted && !x.IsEnded))).ToList();
+    var others = Model.Where(x => (!((x.Date == DateOnly.FromDateTime(DateTime.Now) && x.Hour == DateTime.Now.Hour) || (x.IsStarted && !x.IsEnded)) && !(x.IsStarted && x.IsEnded))).ToList();
+}
+
+<h4>@Localizer["Görüşmeler"]</h4>
+
+<hr />
+<div class="container">
+   <div class="card">
+  <div class="card-body">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Localizer["Müşteri Adı"]
+            </th>
+            <th>@Localizer["Görüşme Tarihi"]</th>
+            <th>@Localizer["Görüşme Saati"]</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in activeMeetings) {
+            
+         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Customer.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Hour)
+            </td>
+            <td>
+                <a target="_blank" class="btn btn-primary" asp-area="Meeting" asp-controller="Home" asp-action="Meet" asp-route-id="@item.Id.ToString()">@Localizer["Görüşmeye Bağlan"]</a>
+            </td>
+        </tr>             
+            
+}
+@foreach (var item in others) {
+            
+         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Customer.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Hour)
+            </td>
+            <td>
+                
+            </td>
+        </tr>             
+            
+}
+    </tbody>
+</table>
+ </div>
+</div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

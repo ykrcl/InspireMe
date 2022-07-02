@@ -32,13 +32,21 @@ namespace InspireMe.Areas.Client.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            if (isAjax)
-                return PartialView();
-            else
-                return View();
+            return RedirectToAction("FindaSupervisor", "Bookings", new { area = "Client" });
         }
-            public async Task<IActionResult> FindaSupervisor()
+
+
+        public async Task<IActionResult> ListMeetings()
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).OrderBy(x=>x.Date).ThenBy(x=>x.Hour).ToList();
+            if (isAjax)
+                return PartialView(bookings);
+            else
+                return View(bookings);
+        }
+        public async Task<IActionResult> FindaSupervisor()
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var user = await _userManager.GetUserAsync(HttpContext.User);

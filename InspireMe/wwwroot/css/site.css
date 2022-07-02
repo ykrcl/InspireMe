@@ -16,3 +16,19 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+#notificationdiv {
+    width: 20%;
+    top: 30px;
+    right: 30px;
+    font-weight: bold;
+    z-index: 1031; /* Max Z-Index in Fixed Nav Menu is 1030*/
+    text-align: center;
+    position: fixed;
+}
+
+@media only screen and (max-width: 600px) {
+    #notificationdiv {
+        width: 100% !important;
+    }
+}

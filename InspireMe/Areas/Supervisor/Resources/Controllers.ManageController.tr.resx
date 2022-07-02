@@ -138,11 +138,29 @@
   <data name="Toplantı bulunamadı." xml:space="preserve">
     <value>Toplantı bulunamadı.</value>
   </data>
+  <data name="Toplantı Doğrulandı" xml:space="preserve">
+    <value>Toplantı Doğrulandı</value>
+  </data>
+  <data name="Toplantı isteğinizi onayladı" xml:space="preserve">
+    <value>Toplantı isteğinizi onayladı</value>
+  </data>
+  <data name="Toplantı isteğinizi reddetti." xml:space="preserve">
+    <value>Toplantı isteğinizi reddetti.</value>
+  </data>
   <data name="Toplantı Onayla" xml:space="preserve">
     <value>Toplantı Onayla</value>
   </data>
+  <data name="Toplantı Reddedildi" xml:space="preserve">
+    <value>Toplantı Reddedildi</value>
+  </data>
   <data name="Toplantı Sil" xml:space="preserve">
     <value>Toplantı Sil</value>
+  </data>
+  <data name="Toplantı İsteğiniz Onaylandı." xml:space="preserve">
+    <value>Toplantı İsteğiniz Onaylandı.</value>
+  </data>
+  <data name="Toplantı İsteğiniz Reddedildi." xml:space="preserve">
+    <value>Toplantı İsteğiniz Reddedildi.</value>
   </data>
   <data name="Yanlış obje id'si." xml:space="preserve">
     <value>Yanlış obje id'si.</value>

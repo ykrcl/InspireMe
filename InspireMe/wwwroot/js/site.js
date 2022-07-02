@@ -14,13 +14,14 @@ function registerphoneinput(element) {
 
 
 function updatelogin() {
+
     $.ajax({
         url: "/Accounts/loginstatus/",
         type: 'GET',
     })
         .done(function (response) { //
             $('#LoginStatus').html(response);
-        });
+        });    
 }
 function loadpage(url) {
     $.ajax({

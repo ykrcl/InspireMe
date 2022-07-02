@@ -49,8 +49,8 @@
             
            
             <td>
-                 <a data-ajax data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="DeleteRequestedBooking" asp-route-id="@item.Id">@Localizer["Sil"]</a>
-                 <a data-ajax data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="VerifyRequestedBooking" asp-route-id="@item.Id">@Localizer["Onayla"]</a>
+                 <a data-ajax data-nonstate data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="DeleteRequestedBooking" asp-route-id="@item.Id">@Localizer["Sil"]</a>
+                 <a data-ajax data-nonstate data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="VerifyRequestedBooking" asp-route-id="@item.Id">@Localizer["Onayla"]</a>
             </td>
         </tr>
 }

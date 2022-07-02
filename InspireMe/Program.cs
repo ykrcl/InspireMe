@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using System.Globalization;
 using InspireMe.Areas.Meeting.Hubs;
-
+using InspireMe.Hubs;
+using InspireMe.BackgroundTasks;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,6 +29,9 @@ builder.Services.AddFluentEmail(emailconf.GetValue<string>("FromMail")).AddSmtpS
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddAntiforgery();
 builder.Services.AddMvc().AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix).AddDataAnnotationsLocalization();
+
+builder.Services.AddHostedService<AlertMeetingTimeHostedService>();
+builder.Services.AddScoped<AlerttingIScopedProcessingService, AlertingScopedProcessingService>();
 builder.Services.AddSignalR().AddHubOptions<MeetingHub>(opts =>
 {
     opts.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
@@ -65,6 +69,7 @@ builder.Services.AddAuthorization(options =>
             new MeetingConnectionsRequirement()));
 });
 builder.Services.AddScoped<IAuthorizationHandler, HasMeetingHandler>();
+builder.Services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -87,6 +92,7 @@ app.UseRequestLocalization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<MeetingHub>("/Meetings/MeetingsHub");
+    endpoints.MapHub<SiteNotificationConnection>("/NotificationsHub");
     endpoints.MapControllerRoute(
       name: "areas",
       pattern: "{lang=tr}/{area:exists}/{controller=Home}/{action=Index}/{id?}"

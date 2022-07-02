@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using InspireMe.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using InspireMe.Hubs;
+using FluentEmail.Core;
 
 namespace InspireMe.Areas.Supervisor.Controllers
 {
@@ -19,19 +22,40 @@ namespace InspireMe.Areas.Supervisor.Controllers
         private readonly IStringLocalizer<ManageController> _localizer;
         private readonly AvailableDatesTable availableDatesTable;
         private readonly BookingsTable bookingsTable;
-        public ManageController(ILogger<ManageController> logger, IDatabaseConnectionFactory connectionFactory, UserManager<IdentityUser> userManager, IStringLocalizer<ManageController> localizer, IUserClaimsTable<string, IdentityUserClaim<string>> userClaimsTable)
+        private readonly IHubContext<SiteNotificationConnection> _NotificationhubContext;
+        private readonly IUserConnectionManager _userConnectionManager;
+        private readonly IFluentEmailFactory _emailFactory;
+        public ManageController(ILogger<ManageController> logger, IFluentEmailFactory emailFactory, IUserConnectionManager userConnectionManager, IDatabaseConnectionFactory connectionFactory, IHubContext<SiteNotificationConnection> NotificationhubContext, UserManager<IdentityUser> userManager, IStringLocalizer<ManageController> localizer, IUserClaimsTable<string, IdentityUserClaim<string>> userClaimsTable)
         {
             _logger = logger;
             _localizer = localizer;
             _connectionFactory = connectionFactory;
             _userManager = userManager;
+            _NotificationhubContext = NotificationhubContext;
             _userClaimsTable = userClaimsTable;
             availableDatesTable = new AvailableDatesTable(_connectionFactory);
             bookingsTable = new BookingsTable(_connectionFactory);
+            _userConnectionManager = userConnectionManager;
+            _emailFactory = emailFactory;
         }
         public IActionResult Index()
         {
-            return View();
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            if (isAjax)
+                return PartialView();
+            else
+                return View();
+        }
+
+        public async Task<IActionResult> ListMeetings()
+        {
+            bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).OrderBy(x => x.Date).ThenBy(x => x.Hour).ToList();
+            if (isAjax)
+                return PartialView(bookings);
+            else
+                return View(bookings);
         }
         public async Task<IActionResult> ListAvailableDates()
         {
@@ -77,6 +101,22 @@ namespace InspireMe.Areas.Supervisor.Controllers
                 {
                     var booking = await bookingsTable.VerifyBooking(obj.Id,user.Id);
                     if (booking) {
+                        try { 
+                            var notifuser = (await bookingsTable.FindBookingByIdBindCustomerAsync(obj.Id)).Customer;
+                            var connections = _userConnectionManager.GetUserConnections(notifuser.Id);
+                            foreach (var connection in connections)
+                            {
+                                await _NotificationhubContext.Clients.Client(connection).SendAsync("ShowNotification", user.UserName + ": " + _localizer["Toplantı İsteğiniz Onaylandı."].Value);
+                            }
+                            var email1 = _emailFactory
+                        .Create()
+                        .To(notifuser.Email)
+                        .Subject(_localizer["Toplantı Doğrulandı"].Value)
+                        .Body(user.UserName +" "+ _localizer["Toplantı isteğinizi onayladı"].Value );
+
+                            await email1.SendAsync();
+                        }
+                        catch { }
                         if (isAjax)
                         {
                             return Json(new { success = true, redirect = Url.Action("ListRequestedBookings", "Manage", new { area = "Supervisor" }), alert = _localizer["Başarıyla Onaylandı."].Value });
@@ -126,9 +166,25 @@ namespace InspireMe.Areas.Supervisor.Controllers
             {
                 try
                 {
+                    var notifuser = (await bookingsTable.FindBookingByIdBindCustomerAsync(obj.Id)).Customer;
                     var booking = await bookingsTable.DeleteAsync(obj.Id, user.Id);
                     if (booking)
                     {
+                        try
+                        {
+                            var connections = _userConnectionManager.GetUserConnections(notifuser.Id);
+                            foreach (var connection in connections)
+                            {
+                                await _NotificationhubContext.Clients.Client(connection).SendAsync("ShowNotification", user.UserName + ": " + _localizer["Toplantı İsteğiniz Reddedildi."].Value);
+                            }
+                            var email1 = _emailFactory
+                        .Create()
+                        .To(notifuser.Email)
+                        .Subject(_localizer["Toplantı Reddedildi"].Value)
+                        .Body(user.UserName + " " + _localizer["Toplantı isteğinizi reddetti."].Value);
+                            await email1.SendAsync();
+                        }
+                        catch { }
                         if (isAjax)
                         {
                             return Json(new { success = true, redirect = Url.Action("ListRequestedBookings", "Manage", new { area = "Supervisor" }), alert = _localizer["Başarıyla Silindi."].Value });
