@@ -13,7 +13,7 @@
     <div class="card">
   <div class="card-body">
 <p>
-    <a data-ajax data-nonstate data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-primary" asp-area="Supervisor" asp-controller="Manage" asp-action="CreateAvailableDates" >@Localizer["Ekle"]</a>
+    <a data-ajax data-nonstate data-ajaxafter="$('#PageModal').modal('show');"  data-target="PageModalContent" class="btn btn-primary" asp-area="Supervisor" asp-controller="Manage" asp-action="CreateAvailableDates" >@Localizer["Ekle"]</a>
 </p>
 
 <table class="table table-striped">
@@ -21,14 +21,14 @@
         <tr>
             
             <th>
-                @Html.DisplayNameFor(model => culture.DateTimeFormat.GetDayName((DayOfWeek)model.Day))
+                @Localizer["Gün"]
             </th>
             
             <th>
-                @Html.DisplayNameFor(model => model.Hour)
+                @Localizer["Saat"]
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                @Localizer["Fiyat"]
             </th>
             
            
@@ -40,7 +40,7 @@
         <tr>
             
             <td>
-                @Html.DisplayFor(modelItem => item.Day)
+                @culture.DateTimeFormat.GetDayName((DayOfWeek)item.Day)
             </td>
             
             <td>
@@ -52,7 +52,7 @@
             
            
             <td>
-                 <a data-ajax data-nonstate data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.show()"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="DeleteAvailableDate" asp-route-id="@item.Id">@Localizer["Sil"]</a>
+                 <a data-ajax data-nonstate data-ajaxafter="$('#PageModal').modal('show');"  data-target="PageModalContent" class="btn btn-danger" asp-area="Supervisor" asp-controller="Manage" asp-action="DeleteAvailableDate" asp-route-id="@item.Id">@Localizer["Sil"]</a>
             </td>
         </tr>
 }

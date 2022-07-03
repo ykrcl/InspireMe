@@ -120,6 +120,15 @@
   <data name="Ekle" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="Fiyat" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="Gün" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Saat" xml:space="preserve">
+    <value>Hour</value>
+  </data>
   <data name="Sil" xml:space="preserve">
     <value>Delete</value>
   </data>

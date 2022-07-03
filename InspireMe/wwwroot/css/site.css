@@ -32,3 +32,7 @@ body {
         width: 100% !important;
     }
 }
+
+.ui-dialog{
+    z-index: 1060!important;
+}

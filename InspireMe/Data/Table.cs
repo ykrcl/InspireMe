@@ -23,7 +23,8 @@ namespace InspireMe.Data
         /// <inheritdoc/>
         protected override void OnDispose() {
             if (DbConnection != null) {
-                DbConnection.Dispose();
+                DbConnection.Close();
+                DbConnection.Dispose();   
             }
         }
     }

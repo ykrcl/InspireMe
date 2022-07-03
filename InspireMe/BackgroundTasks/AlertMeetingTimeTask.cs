@@ -20,7 +20,6 @@ namespace InspireMe.BackgroundTasks
     {
         private int executionCount = 0;
         private readonly ILogger _logger;
-        private readonly BookingsTable bookingsTable;
         private readonly IHubContext<SiteNotificationConnection> _NotificationhubContext;
         private readonly IUserConnectionManager _userConnectionManager;
         private readonly IFluentEmailFactory _emailFactory;
@@ -32,7 +31,6 @@ namespace InspireMe.BackgroundTasks
             _localizer = localizer;
             _connectionFactory = connectionFactory;
             _NotificationhubContext = NotificationhubContext;
-            bookingsTable = new BookingsTable(_connectionFactory);
             _userConnectionManager = userConnectionManager;
             _emailFactory = emailFactory;
         }
@@ -42,7 +40,7 @@ namespace InspireMe.BackgroundTasks
             while (!stoppingToken.IsCancellationRequested)
             {
                 executionCount++;
-
+                BookingsTable bookingsTable = new BookingsTable(_connectionFactory);
                 var upcomingmeetings = await bookingsTable.GetUpcomingMeetings();
                 if (upcomingmeetings.Count() > 0)
                 {
@@ -80,12 +78,20 @@ namespace InspireMe.BackgroundTasks
 
                 var timeOfDay = DateTime.Now.TimeOfDay;
                 var nextFullHour = TimeSpan.FromHours(Math.Ceiling(timeOfDay.TotalHours));
-                var delta = ((int)(nextFullHour - timeOfDay).Add(TimeSpan.FromMinutes(-3)).TotalMilliseconds);
-
+                var delta = (nextFullHour - timeOfDay);
+                if (delta.TotalMinutes < 5)
+                {
+                    delta = delta.Add(TimeSpan.FromMinutes(57));
+                }
+                else
+                {
+                    delta = delta.Add(TimeSpan.FromMinutes(-3));
+                }
+                bookingsTable.Dispose();
                 _logger.LogInformation(
                     "Meeting Notification Service is working. Count: {Count}", executionCount);
 
-                await Task.Delay(delta, stoppingToken);
+                await Task.Delay((int)delta.TotalMilliseconds, stoppingToken);
             }
         }
     }

@@ -127,6 +127,7 @@ namespace InspireMe.Controllers
                 if (result.Succeeded)
                 {
                     string confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    try { 
                     string? confirmationLink = Url.Action("ConfirmEmail",
                           "Accounts", new
                           {
@@ -136,11 +137,13 @@ namespace InspireMe.Controllers
                            protocol: HttpContext.Request.Scheme);
                     var email1 = _emailFactory
                         .Create()
-                        .To(user.Email)
+                        .To(obj.Email)
                         .Subject(_localizer["E-Posta Doğrulama"].Value)
                         .Body(_localizer["E-Postanızı bu linkten doğrulayın:"] + " " + confirmationLink);
 
-                    await email1.SendAsync();
+                    email1.SendAsync();
+                    }
+                    catch { }
                     if (obj.IsSupervisor == true)
                     { 
                         if (!_roleManager.RoleExistsAsync("Supervisor").Result)

@@ -62,17 +62,18 @@ namespace InspireMe.Areas.Client.Controllers
             List<Tuple<IdentityUser, IEnumerable<string>>> supervisors = new List<Tuple<IdentityUser, IEnumerable<string>>>();
             foreach (var claim in claims)
                 {
-                var _supervisors = (await _userManager.GetUsersForClaimAsync(claim)).Select((x) => new Tuple<IdentityUser, IEnumerable<string>>(x, (_userManager.GetClaimsAsync(x).Result).Where(f => f.Type == "field").Select(f => f.Value)));
+                var _supervisors = (await _userManager.GetUsersForClaimAsync(claim)).Where(x=> _userManager.IsInRoleAsync(x,"Supervisor").Result).Select((x) => new Tuple<IdentityUser, IEnumerable<string>>(x, (_userManager.GetClaimsAsync(x).Result).Where(f => f.Type == "field").Select(f => f.Value)));
                 supervisors.AddRange(_supervisors);
             }
-                 
-                 ViewBag.Supervisors = supervisors;
+            var model = new SearchSupervisorViewModel();
+            model.Supervisors = supervisors;
+               
             var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
             ViewBag.allfields = allfields;
             if (isAjax)
-                return PartialView();
+                return PartialView(model);
             else
-                return View();
+                return View(model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -83,17 +84,20 @@ namespace InspireMe.Areas.Client.Controllers
             List<Tuple<IdentityUser, IEnumerable<string>>> supervisors = new List<Tuple<IdentityUser, IEnumerable<string>>>();
             foreach (var field in fields)
             {
+                if (!String.IsNullOrWhiteSpace(field)) { 
                 var claim = new Claim("field", field);
-                var _supervisors = (await _userManager.GetUsersForClaimAsync(claim)).Select((x)=> new Tuple<IdentityUser, IEnumerable<string>>(x, (_userManager.GetClaimsAsync(x).Result).Where(f=>f.Type=="field").Select(f=>f.Value)));
+                var _supervisors = (await _userManager.GetUsersForClaimAsync(claim)).Where(x => _userManager.IsInRoleAsync(x, "Supervisor").Result).Select((x)=> new Tuple<IdentityUser, IEnumerable<string>>(x, (_userManager.GetClaimsAsync(x).Result).Where(f=>f.Type=="field").Select(f=>f.Value))).ToList();
                 supervisors.AddRange(_supervisors);
+                }
             }
-            ViewBag.Supervisors = supervisors;
+            var model = new SearchSupervisorViewModel();
+            model.Supervisors = supervisors;
             var allfields = await _userClaimsTable.GetClaimValuesByTypeAsync("field");
             ViewBag.allfields = allfields;
             if (isAjax)
-                return PartialView();
+                return PartialView(model);
             else
-                return View();
+                return View(model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -106,11 +110,12 @@ namespace InspireMe.Areas.Client.Controllers
                 try
                 {
                     supervisor = await _userManager.FindByIdAsync(obj.UserId);
-                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId,user.Id , obj.Date, obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
+                    obj.UserName = supervisor.UserName;
+                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId,user.Id , DateOnly.FromDateTime(obj.Date), obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
                         Booking booking = new Booking();
                         
                         booking.Hour = obj.Hour;
-                        booking.Date = obj.Date;
+                        booking.Date = DateOnly.FromDateTime(obj.Date);
                         booking.IsEnded = false;
                         booking.IsStarted = false;
                         booking.IsVerified = false;
@@ -135,20 +140,20 @@ namespace InspireMe.Areas.Client.Controllers
                 {
                     ModelState.AddModelError("UserId", _localizer["Danışman bulunamadı"]);
                 }
-                
             }
             var fullhours = (await bookingsTable.GetOccupiedHoursAsync(id, user.Id)).GroupBy(x => x.Date).ToDictionary(x => x.Key.ToString("dd_MM_yyyy"), x => x.Select(f => f.Hour).ToList());
             var availablehours = (await availableDatesTable.GetUserAvailableDatesAsync(id)).GroupBy(x => x.Day).OrderBy(x=>x.Key).ToDictionary(x => x.Key.ToString(), x => x.OrderBy(f=>f.Hour).Select(f => new {
                 hour = f.Hour,
                 price = f.Price
             }));
+            ViewBag.fullhours = fullhours;
+            ViewBag.availablehours = availablehours;
             if (isAjax)
                 return PartialView(obj);
             else
                 return View(obj);
         }
 
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> BookaMeeting(string id)
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
@@ -175,6 +180,16 @@ namespace InspireMe.Areas.Client.Controllers
                 return RedirectToAction("Index", "Bookings", new { area = "Client" });
             }
             
+        }
+        protected override void Dispose(bool disposing)
+        {
+            // need to alway test if disposing pass else reallocations could occur during Finalize pass
+            // also good practice to test resource was created
+            if (disposing) { 
+                bookingsTable.Dispose();
+                availableDatesTable.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

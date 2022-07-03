@@ -60,15 +60,15 @@ namespace InspireMe.Data
         /// <inheritdoc/>
         public virtual async Task<bool> CreateAsync(AvailableDate obj)
         {
-            const string sql = "INSERT INTO AvailableDates " +
-                               "VALUES (@Day,  @Hour,  @Price, @UserId,@IsAvailable,@Reason);";
+            const string sql = "INSERT INTO AvailableDates  (hour, price, isavailable, userid, reason, day)" +
+                               "VALUES (@Hour,  @Price, @IsAvailable, @UserId,@Reason, @Day);";
             var rowsInserted = await DbConnection.ExecuteAsync(sql, new
             {
                 obj.Day,
                 obj.Hour,
+                obj.IsAvailable,
                 obj.Price,
                 obj.UserId,
-                obj.IsAvailable,
                 obj.Reason,
 
             });

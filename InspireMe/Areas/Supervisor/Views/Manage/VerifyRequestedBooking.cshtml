@@ -1,22 +1,22 @@
-﻿@model InspireMe.Models.DeleteBookingViewModel
+﻿@model InspireMe.Models.VerifyBookingViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] =  Localizer["Toplantı Sil"];
+    ViewData["Title"] =  Localizer["Toplantı Onayla"];
 }
 
-<h4>@Localizer["Toplantı Sil"]</h4>
+<h4>@Localizer["Toplantı Onayla"]</h4>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="DeleteRequestedBooking" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.hide()" data-parentid="ContentPage">
+        <form asp-action="VerifyRequestedBooking" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="$('#PageModal').modal('hide');" data-parentid="ContentPage">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
                 <input asp-for="Id" type="hidden" class="form-control" />
             
             <div class="form-group">
-                <input type="submit" value="@Localizer["Sil"]" class="btn btn-primary" />
+                <input type="submit" value="@Localizer["Onayla"]" class="btn btn-primary" />
             </div>
         </form>
     </div>

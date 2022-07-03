@@ -203,7 +203,7 @@ namespace InspireMe.Identity
 
         /// <inheritdoc/>
         public virtual async Task<IEnumerable<TUser>> GetUsersForClaimAsync(Claim claim) {
-            const string sql = "SELECT * " +
+            const string sql = "SELECT u.* " +
                                    "FROM AspNetUsers AS u " +
                                    "INNER JOIN AspNetUserClaims AS uc ON u.Id = uc.UserId " +
                                    "WHERE uc.ClaimType = @ClaimType AND uc.ClaimValue = @ClaimValue;";

@@ -3,6 +3,11 @@
 
 // Write your JavaScript code.
 
+$.ajaxSetup({
+    cache: false,
+});
+
+
 function registerphoneinput(element) {
     var id = element.getAttribute("id");
     var cleavePhone = new Cleave(('#'+id), {

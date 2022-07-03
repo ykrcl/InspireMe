@@ -9,32 +9,33 @@
 <h1>@Localizer["Görüşme"]</h1>
 
 <hr />
-<input asp-for="MeetingId" type="hidden" class="form-control" />
-<input asp-for="UserName" type="hidden" class="form-control" />
+<div id="meetingid" style="display: none;" aria-hidden="true">@Model.MeetingId</div>
+<div id="remote_UserName" style="display: none;" aria-hidden="true">@Model.UserName</div>
 <div class="row">
     <div class="col-md-2">
             <label class="control-label">@Localizer["Görüşülen Kişi"] :</label>
              @Html.DisplayFor(model => model.UserName) </div>
 <div class="col-md-2">
              <label class="control-label">@Localizer["Toplantı Tarihi"] :</label>
-             @Html.DisplayFor(model => model.Date) </div>
+             @Model.Date.ToShortDateString() 
+         </div>
              <div class="col-md-2">
              <label class="control-label">@Localizer["Toplantı Saati"] :</label>
              @Html.DisplayFor(model => model.Hour) 
     </div>
 </div>
 <div class="row">
-        <div class="col-md-6">
-            <div style="max-height:500px;" class="position-relative">
+        <div class="col-md-9">
+            <div style="max-height:700px;" class="position-relative">
             <div class="position-absolute top-0 start-0" style="width:100%;"><video style="width:100%; object-fit contain;" id="remoteVideo" autoplay playsinline controls="false"/></div>
-            <div class="position-absolute bottom-0 end-0 mr-2 mb-2" style="height: 150px;"><video style="height:100%; object-fit contain;" id="localVideo" autoplay playsinline controls="false"/></div>
+            <div class="position-absolute bottom-0 end-0 mr-2 mb-2" style="height: 80px;"><video style="height:100%; object-fit contain;" id="localVideo" autoplay playsinline controls="false"/></div>
             </div>
             <div class="container d-flex justify-content-center">
                 <button id="MuteAudio" class="btn btn-primary rounded-circle border border-danger" type="button"><i style="color:red;" class="fa-solid fa-volume"></i></button>
                 <button  id="StopVideo" class="btn btn-primary rounded-circle border border-danger" type="button"><i style="color:red;" class="fa-solid fa-video"></i></button>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
 
             <div class="card">
                 <div class="card-body">
@@ -89,9 +90,10 @@
 </div>
 
 
-<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
-<script src="~/js/Meeting.js"></script>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/Meeting.js"></script>
 }

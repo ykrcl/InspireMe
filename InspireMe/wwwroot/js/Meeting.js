@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-
+let stream = null;
 async function getConnectedDevices(type) {
     const devices = await navigator.mediaDevices.enumerateDevices();
     return devices.filter(device => device.kind === type)
@@ -45,9 +45,40 @@ function LoadChatHistory(history) {
 
 
 
-var username = $("#UserName").val();
-var meetingid = $("#MeetingId").val();
-var stream = await getUserMedia({ video: true, audio: true })
+var username = $("#remote_UserName").html();
+var meetingid = $("#meetingid").html();
+const remoteVideo = document.querySelector('remoteVideo');
+const videoElement = document.querySelector('localVideo');
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(x => {
+    stream = x;
+    videoElement.srcObject = x;
+    getConnectedDevices('videoinput').then(y => {
+        updateCameraList(y);
+    }).catch(error => {
+        console.log('Error :', error)
+    });
+}).catch(error => {
+    console.log('Error :', error)
+});
+
+navigator.mediaDevices.addEventListener('devicechange', event => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(x => {
+        stream = x;
+        videoElement.srcObject = x;
+        getConnectedDevices('videoinput').then(y => {
+            updateCameraList(y);
+            $("#CameraModal").modal('show');
+        }).catch(error => {
+            console.log('Error :', error)
+        });
+    }).catch(error => {
+        console.log('Error :', error)
+    });
+});
+
+
+
 var connection = new signalR.HubConnectionBuilder().withUrl("/Meetings/MeetingsHub?meetingid=" + meetingid).build();
 document.getElementById("sendButton").disabled = true;
 
@@ -73,19 +104,16 @@ connection.on("ShowErrorMessage", function (message) {
 
 connection.on("OtherLostConnection", function (isshowing) {
     if (isshowing) {
-        var WaitModal = new bootstrap.Modal(document.getElementById('WaitModal'));
-        WaitModal.show();
+        $("#WaitModal").modal('show');
     }
 });
 
 const configuration = { 'iceServers': [{ 'urls': 'stun:74.125.142.127:19302' }] }
 const peerConnection = new RTCPeerConnection(configuration);
 
-connection.on("StartWebRtC", function (sdpjson) {
-    var WaitModal = new bootstrap.Modal(document.getElementById('WaitModal'));
-    WaitModal.hide();
-    var CameraModal = new bootstrap.Modal(document.getElementById('CameraModal'));
-    CameraModal.show();
+
+connection.on("StartWebRtC", async function (sdpjson) {
+    $("#WaitModal").modal('show');
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
     connection.invoke("ConnectWebRtc", JSON.stringify(offer)).catch(function (err) {
@@ -93,11 +121,9 @@ connection.on("StartWebRtC", function (sdpjson) {
     });
 });
 
-connection.on("InitiateRemoteRtc", function (sdpjson) {
-    var WaitModal = new bootstrap.Modal(document.getElementById('WaitModal'));
-    WaitModal.hide();
-    var CameraModal = new bootstrap.Modal(document.getElementById('CameraModal'));
-    CameraModal.show();
+connection.on("InitiateRemoteRtc", async function (sdpjson) {
+    $("#WaitModal").modal('hide');
+    $("#CameraModal").modal('show');
     const offer = JSON.parse(sdpjson);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
@@ -107,15 +133,14 @@ connection.on("InitiateRemoteRtc", function (sdpjson) {
     });
 });
 
-connection.on("AnswerRTC", function (sdpjson) {
-   
+connection.on("AnswerRTC", async function (sdpjson) {
+    $("#WaitModal").modal('hide');
+    $("#CameraModal").modal('show');
     const answer = JSON.parse(sdpjson);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-    
 });
 connection.start().then(function () {
-    var WaitModal = new bootstrap.Modal(document.getElementById('WaitModal'));
-    WaitModal.show();
+    $("#WaitModal").modal('show');
     document.getElementById("sendButton").disabled = false;
 }).catch(function (err) {
     return console.error(err.toString());
@@ -131,17 +156,19 @@ document.getElementById("sendButton").addEventListener("click", function (event)
 
 
 
-document.getElementById("SaveCamButton").addEventListener("click", function (event) {
-    stream = await openCamera();
-    await playVideoFromCamera();
-    const senders = peerConnection.getSenders();
-    senders.forEach((sender) => peerConnection.removeTrack(sender));
-    stream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, stream);
-    });
+document.getElementById("SaveCamButton").addEventListener("click", async function (event) {
+    if ($("#availableCameras").val() !== null) {
+        const stream = await openCamera();
+        videoElement.srcObject = stream;
+        const senders = peerConnection.getSenders();
+        senders.forEach((sender) => peerConnection.removeTrack(sender));
+        stream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, stream);
+        });
+    }
 });
 
-const remoteVideo = document.querySelector('#remoteVideo');
+
 
 peerConnection.addEventListener('track', async (event) => {
     const [remoteStream] = event.streams;
@@ -178,13 +205,3 @@ document.getElementById("StopVideo").addEventListener("click", function (event) 
 
 });
 
-
-
-async function playVideoFromCamera() {
-    try {
-        const videoElement = document.querySelector('video#localVideo');
-        videoElement.srcObject = stream;
-    } catch (error) {
-        console.error('Error opening video camera.', error);
-    }
-}

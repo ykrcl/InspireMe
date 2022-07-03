@@ -10,25 +10,25 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="DeleteAvailableDate" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.hide()" data-parentid="ContentPage">
+        <form asp-action="CreateAvailableDates" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="$('#PageModal').modal('hide');" data-parentid="PageModalContent">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             <div class="form-group">
                 <label asp-for="Day" class="control-label"></label>
                 <select  asp-for="Day" class="form-select">
-                     <option value="0">@Localizer["Pazartesi"]</option>
-                     <option value="1">@Localizer["Salı"]</option>
-                     <option value="2">@Localizer["Çarşamba"]</option>
-                     <option value="3">@Localizer["Perşembe"]</option>
-                     <option value="4">@Localizer["Cuma"]</option>
-                     <option value="5">@Localizer["Cumartesi"]</option>
-                     <option value="6">@Localizer["Pazar"]</option>
+                     <option value="1">@Localizer["Pazartesi"]</option>
+                     <option value="2">@Localizer["Salı"]</option>
+                     <option value="3">@Localizer["Çarşamba"]</option>
+                     <option value="4">@Localizer["Perşembe"]</option>
+                     <option value="5">@Localizer["Cuma"]</option>
+                     <option value="6">@Localizer["Cumartesi"]</option>
+                     <option value="0">@Localizer["Pazar"]</option>
                 </select>
                 <span asp-validation-for="Day" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Hour" class="control-label"></label>
-                <select  asp-for="Hour" class="form-select">
+                <label asp-for="Hours" class="control-label"></label>
+                <select  asp-for="Hours" class="form-select">
                      <option value="0">0</option>
                      <option value="1">1</option>
                      <option value="2">2</option>
@@ -54,7 +54,7 @@
                      <option value="22">22</option>
                      <option value="23">23</option>
                 </select>
-                <span asp-validation-for="Hour" class="text-danger"></span>
+                <span asp-validation-for="Hours" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
@@ -73,7 +73,7 @@
 </div>
 
 <script>
-    $("#Hour").selectize({
+    $("#Hours").selectize({
   maxItems: 24,
 });
 </script>

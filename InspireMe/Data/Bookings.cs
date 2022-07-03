@@ -2,8 +2,17 @@
 using System.ComponentModel.DataAnnotations;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using System.Data;
 namespace InspireMe.Data
 {
+    public class DapperSqlDateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
+    {
+        public override void SetValue(IDbDataParameter parameter, DateOnly date)
+            => parameter.Value = date.ToDateTime(new TimeOnly(0, 0));
+
+        public override DateOnly Parse(object value)
+            => DateOnly.FromDateTime((DateTime)value);
+    }
     public class Booking
     {
         public Guid Id
@@ -79,7 +88,7 @@ namespace InspireMe.Data
         /// <inheritdoc/>
         public virtual async Task<bool> CreateAsync(Booking obj, string CustomerId, string SupervisorId)
         {
-            const string sql = "INSERT INTO Bookings " +
+            const string sql = "INSERT INTO Bookings (id, date, hour, isended, isstarted, customerid, supervisorid, isverified)" +
                                "VALUES (@Id, @Date,  @Hour,  @IsEnded, @IsStarted, @CustomerId, @SupervisorId, @IsVerified);";
             var rowsInserted = await DbConnection.ExecuteAsync(sql, new
             {
@@ -142,7 +151,7 @@ namespace InspireMe.Data
         public virtual async Task<Booking> FindBookingByIdAsync(Guid Id)
         {
             const string sql = "SELECT * " +
-                               "FROM Bookings" +
+                               "FROM Bookings " +
                                "WHERE Id = @Id;";
             var bookings = await DbConnection.QueryFirstOrDefaultAsync<Booking>(sql, new { Id = Id });
             return bookings;
@@ -162,7 +171,7 @@ namespace InspireMe.Data
                                "FROM Bookings b " +
                                "inner join AspNetUsers supervisors on supervisors.Id = b.SupervisorId " +
                                "WHERE b.Id = @Id;";
-            var bookings = (await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Customer = user; return booking; }, new { Id = Id })).FirstOrDefault();
+            var bookings = (await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Supervisor = user; return booking; }, new { Id = Id })).FirstOrDefault();
             return bookings;
         }
         public virtual async Task<Booking> FindBookingByConnectionId(String Id)
@@ -188,7 +197,7 @@ namespace InspireMe.Data
             const string sql = "SELECT count(1) " +
                                "FROM Bookings " +
                                "WHERE (CustomerId = @CustomerId) AND ((Date=current_date AND Hour=@Hour) OR (IsStarted=TRUE AND IsEnded=FALSE AND IsVerified=TRUE)) ;";
-            var role = (await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { Hour = DateTime.Now.Hour }));
+            var role = (await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { Hour = DateTime.Now.Hour, CustomerId= CustomerId }));
             return role;
         }
 
@@ -197,14 +206,14 @@ namespace InspireMe.Data
             const string sql = "SELECT count(1) " +
                                "FROM Bookings " +
                                "WHERE (SupervisorId = @SupervisorId) AND ((Date=current_date AND Hour=@Hour) OR (IsEnded=FALSE AND IsVerified=TRUE)) ;";
-            var role = (await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { Hour = DateTime.Now.Hour }));
+            var role = (await DbConnection.QuerySingleOrDefaultAsync<bool>(sql, new { Hour = DateTime.Now.Hour, SupervisorId= SupervisorId }));
             return role;
         }
 
 
         public virtual async Task<IEnumerable<Booking>> GetOccupiedHoursAsync(string SupervisorId, string CustomerId)
         {
-            const string sql = "SELECT *" +
+            const string sql = "SELECT * " +
                                "FROM Bookings " +
                                "WHERE (SupervisorId = @SupervisorId OR CustomerId=@CustomerId) AND( (Date>current_date - 1)  OR (Date=current_date AND Hour>=@Hour));";
             var role = await DbConnection.QueryAsync<Booking>(sql, new { SupervisorId = SupervisorId, Hour = DateTime.Now.Hour, CustomerId= CustomerId });
@@ -242,7 +251,7 @@ namespace InspireMe.Data
         public virtual async Task<bool> StartMeetingAsync(Guid Id)
         {
             const string updateRoleSql = "UPDATE Bookings " +
-                                         "SET IsStarted = TRUE" +
+                                         "SET IsStarted = TRUE " +
                                          "WHERE Id = @Id;";
             using (var transaction = DbConnection.BeginTransaction())
             {
@@ -268,7 +277,7 @@ namespace InspireMe.Data
         public virtual async Task<bool> EndMeetingAsync(Guid Id)
         {
             const string updateRoleSql = "UPDATE Bookings " +
-                                         "SET IsEnded = TRUE" +
+                                         "SET IsEnded = TRUE " +
                                          "WHERE Id = @Id;";
             using (var transaction = DbConnection.BeginTransaction())
             {
@@ -293,13 +302,13 @@ namespace InspireMe.Data
         public virtual async Task<bool> ConnectCustomertoMeetingAsync(string CustomerRTCId, Guid Id)
         {
             const string updateRoleSql = "UPDATE Bookings " +
-                                         "SET CustomerRTCId = NULL" +
-                                         "WHERE CustomerRTCId = @CustomerRTCId;" +
+                                         "SET CustomerRTCId = NULL " +
+                                         "WHERE CustomerRTCId = @CustomerRTCId; " +
                                          "UPDATE Bookings " +
-                                         "SET SupervisorRTCId = NULL" +
-                                         "WHERE SupervisorRTCId = @CustomerRTCId;" +
+                                         "SET SupervisorRTCId = NULL " +
+                                         "WHERE SupervisorRTCId = @CustomerRTCId; " +
                                          "UPDATE Bookings " +
-                                         "SET CustomerRTCId=@CustomerRTCId" +
+                                         "SET CustomerRTCId=@CustomerRTCId " +
                                          "WHERE Id = @Id;";
             using (var transaction = DbConnection.BeginTransaction())
             {
@@ -326,11 +335,11 @@ namespace InspireMe.Data
         public virtual async Task<bool> DisconnectConnectfromMeetingAsync(string RTCId)
         {
             const string updateRoleSql = "UPDATE Bookings " +
-                                         "SET CustomerRTCId = NULL" +
-                                         "WHERE CustomerRTCId = @RTCId;" +
+                                         "SET CustomerRTCId = NULL " +
+                                         "WHERE CustomerRTCId = @RTCId; " +
                                          "UPDATE Bookings " +
-                                         "SET SupervisorRTCId = NULL" +
-                                         "WHERE SupervisorRTCId = @RTCIdRTCId;";
+                                         "SET SupervisorRTCId = NULL " +
+                                         "WHERE SupervisorRTCId = @RTCId; ";
                                          
             using (var transaction = DbConnection.BeginTransaction())
             {
@@ -354,13 +363,13 @@ namespace InspireMe.Data
         public virtual async Task<bool> ConnectSupervisortoMeetingAsync(string SupervisorRTCId, Guid Id)
         {
             const string updateRoleSql = "UPDATE Bookings " +
-                                         "SET SupervisorRTCId = NULL" +
-                                         "WHERE SupervisorRTCId = @SupervisorRTCId;" +
+                                         "SET SupervisorRTCId = NULL " +
+                                         "WHERE SupervisorRTCId = @SupervisorRTCId; " +
                                          "UPDATE Bookings " +
-                                         "SET CustomerRTCId = NULL" +
-                                         "WHERE CustomerRTCId = @SupervisorRTCId;" +
+                                         "SET CustomerRTCId = NULL " +
+                                         "WHERE CustomerRTCId = @SupervisorRTCId; " +
                                          "UPDATE Bookings " +
-                                         "SET SupervisorRTCId=@SupervisorRTCId" +
+                                         "SET SupervisorRTCId=@SupervisorRTCId " +
                                          "WHERE Id = @Id;";
             using (var transaction = DbConnection.BeginTransaction())
             {
@@ -386,7 +395,7 @@ namespace InspireMe.Data
         public virtual async Task<bool> UpdateChatHistoryMeetingAsync(string ChatHistory, Guid Id)
         {
             const string updateRoleSql = "UPDATE Bookings " +
-                                         "SET ChatHistory=@ChatHistory" +
+                                         "SET ChatHistory=@ChatHistory " +
                                          "WHERE Id = @Id;";
             using (var transaction = DbConnection.BeginTransaction())
             {

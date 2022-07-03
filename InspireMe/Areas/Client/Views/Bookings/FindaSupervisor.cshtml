@@ -1,0 +1,105 @@
+﻿@model InspireMe.Models.SearchSupervisorViewModel
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+
+@{
+    ViewData["Title"] = @Localizer["Danışman Bul"];
+    var allfields = System.Text.Json.JsonSerializer.Serialize(ViewBag.allfields);
+}
+
+<h1>@Localizer["Danışman Bul"]</h1>
+<hr />
+
+<div class="container">
+    <div style="width:100%;" class="d-flex justify-content-center mb-3 mt-2">
+        <a data-ajax data-target="ContentPage" class="btn btn-primary" asp-area="Client" style="width:50%;" asp-controller="Bookings" asp-action="ListMeetings">@Localizer["Ayarlanan Görüşmeler"]</a>
+    </div>
+    
+    <div class="card">
+  <div class="card-body">
+    
+        <form asp-action="FindaSupervisor" asp-controller="Bookings" asp-area="Client"  method="post" data-ajaxform data-parentid="ContentPage" class="d-flex">
+        <input  asp-for="fields" id="fields" class="form-control me-2" type="search" placeholder="@Localizer["İlgi Alanları"]" aria-label="Search">
+        <button asp-for="fields" class="btn btn-outline-success" type="submit">@Localizer["Ara"]</button>
+      </form>
+      <span asp-validation-for="fields" class="text-danger"></span>
+</div>
+</div>
+<div class="card">
+  <div class="card-body">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Localizer["Danışman Adı"]
+            </th>
+            <th>@Localizer["Danışman Alanları"]</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Supervisors) {
+            
+         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Item1.UserName)
+            </td>
+            <td>
+                @foreach(var field in item.Item2){
+                    @(field+", ")
+                }
+            </td>
+            <td>
+                <a data-ajax data-nonstate data-ajaxafter="$('#PageModal').modal('show');"  data-target="PageModalContent" class="btn btn-primary" asp-area="Client" asp-controller="Bookings" asp-action="BookaMeeting" asp-route-id="@item.Item1.Id">@Localizer["Randevu Al"]</a>
+            </td>
+        </tr>             
+            
+}
+    </tbody>
+</table>
+ </div>
+</div>
+</div>
+<script>
+        function split( val ) {
+      return val.split( /,\s*/ );
+    }
+    function extractLast( term ) {
+      return split( term ).pop();
+    }
+    var userInfo = JSON.parse('@Html.Raw(allfields)');
+    $( "#fields" )
+      // don't navigate away from the field on tab when selecting an item
+      .on( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.TAB &&
+            $( this ).autocomplete( "instance" ).menu.active ) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        minLength: 0,
+        source: function( request, response ) {
+          // delegate back to autocomplete, but extract the last term
+          response( $.ui.autocomplete.filter(
+            userInfo, extractLast( request.term ) ) );
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function( event, ui ) {
+          var terms = split( this.value );
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push( ui.item.value );
+          // add placeholder to get the comma-and-space at the end
+          terms.push( "" );
+          this.value = terms.join( ", " );
+          return false;
+        },
+      });
+ 
+</script>

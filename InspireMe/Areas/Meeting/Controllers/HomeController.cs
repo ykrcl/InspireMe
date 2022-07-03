@@ -6,7 +6,7 @@ using Microsoft.Extensions.Localization;
 using InspireMe.Areas.Meeting.Models;
 namespace InspireMe.Areas.Meeting.Controllers
 {
-    [Area("Client")]
+    [Area("Meeting")]
     [Authorize(Policy = "CanConnectMeetingsHub")]
     public class HomeController : Controller
     {
@@ -61,7 +61,17 @@ namespace InspireMe.Areas.Meeting.Controllers
             }
 
 
-            return View("Meet");
+            return View("Meet", model);
+        }
+        protected override void Dispose(bool disposing)
+        {
+            // need to alway test if disposing pass else reallocations could occur during Finalize pass
+            // also good practice to test resource was created
+            if (disposing)
+            {
+                bookingsTable.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

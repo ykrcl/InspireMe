@@ -1,0 +1,102 @@
+﻿@model InspireMe.Models.BookaMeetingViewModel
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Newtonsoft.Json
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Görüşme Ayarla"];
+    var availabledays = "{}";
+    if (JsonConvert.SerializeObject(ViewBag.availablehours) != "null")
+    {
+        availabledays = JsonConvert.SerializeObject(ViewBag.availablehours);
+    }
+    var fulldays = "{}";
+    if (JsonConvert.SerializeObject(ViewBag.fullhours) != "null")
+    {
+         fulldays =  JsonConvert.SerializeObject(ViewBag.fullhours);
+    }
+    
+    
+}
+
+<h4>@Localizer["Görüşme Ayarla"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="BookaMeeting" asp-controller="Bookings" asp-area="Client"  method="post" data-ajaxform data-ajaxafter="$('#PageModal').modal('hide');" data-parentid="PageModalContent">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input asp-for="UserId" type="hidden"  />
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" disabled />
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input value="" readonly="readonly" type="text" asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Hour" class="control-label"></label>
+                <select required asp-for="Hour" disabled class="form-control"></select>
+                <span asp-validation-for="Hour" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="@Localizer["Görüşme Ayarla"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+   var availabledays = JSON.parse('@Html.Raw(availabledays)');
+var fulldays = JSON.parse('@Html.Raw(fulldays)');
+
+$('#Date').datepicker({
+    minDate: 0,
+    maxDate: "+2W",
+    dateFormat: 'dd/mm/yy',
+    beforeShowDay: function(date) {
+        var dayofweek = date.getDay();
+        return [Object.keys(availabledays).indexOf(dayofweek.toString()) != -1];
+    },
+    onSelect: function(date, datepicker) {
+
+        var currentDate = $(this).datepicker("getDate");
+        if (currentDate != null) {
+            var parseddate = $.datepicker.formatDate("dd_mm_yy", new Date(currentDate));
+            var dayofweek = currentDate.getDay();
+            $("#Hour").empty();
+            if (availabledays[dayofweek.toString()] !== undefined) {
+
+                availabledays[dayofweek.toString()].forEach((day, index) => {
+                    if (fulldays[parseddate] !== undefined) {
+                        if (fulldays[parseddate].indexOf(day.hour) == -1) {
+                            var option = $('<option></option>').attr("value", day.hour).text(day.hour.toString() + ": =>" + day.price.toString() + "TL");
+                            $("#Hour").append(option);
+                        } else {
+                            var option = $('<option></option>').attr("value", day.hour).attr("disabled", "disabled").text(day.hour.toString() + ": =>" + "DOLU");
+                            $("#Hour").append(option);
+                        }
+                    } else {
+                        var option = $('<option></option>').attr("value", day.hour).text(day.hour.toString() + ": =>" + day.price.toString() + "TL");
+                        $("#Hour").append(option);
+                    }
+                });
+                $("#Hour").removeAttr("disabled");
+            }
+        }
+    }
+
+});
+</script>
+
+<div>
+    <a href="#" data-bs-dismiss="modal">@Localizer["Kapat"]</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

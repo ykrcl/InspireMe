@@ -19,7 +19,7 @@
     <thead>
         <tr>
             <th>
-                @Localizer["Danışman Adı"]
+                @Localizer["Müşteri Adı"]
             </th>
             <th>@Localizer["Görüşme Tarihi"]</th>
             <th>@Localizer["Görüşme Saati"]</th>
@@ -31,10 +31,10 @@
             
          <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Supervisor.UserName)
+                @Html.DisplayFor(modelItem => item.Customer.UserName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Date)
+                @item.Date.ToLongDateString()
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Hour)
@@ -49,10 +49,10 @@
             
          <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Supervisor.UserName)
+                @Html.DisplayFor(modelItem => item.Customer.UserName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Date)
+                @item.Date.ToLongDateString()
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Hour)

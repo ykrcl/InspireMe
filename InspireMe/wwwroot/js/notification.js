@@ -4,9 +4,9 @@ var notifconnection = new signalR.HubConnectionBuilder().withUrl("/Notifications
 
 
 notifconnection.on("ShowNotification", function (message) {
-    var html = '<div class="alert alert-info" alert-dismissable page-alert">';
-    html += '<button type="button" class="close"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+    var html = '<div class="alert alert-warning alert-dismissible fade show" role="alert">';
     html += message;
+    html += '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
     html += '</div>';
     $(html).hide().prependTo('#notificationdiv').slideDown();
 });

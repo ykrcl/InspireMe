@@ -1,16 +1,16 @@
-﻿@model InspireMe.Models.DeleteAvailableDayViewModel
+﻿@model InspireMe.Models.DeleteBookingViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] =  Localizer["Saat Sil"];
+    ViewData["Title"] =  Localizer["Toplantı Sil"];
 }
 
-<h4>@Localizer["Saat Sil"]</h4>
+<h4>@Localizer["Toplantı Sil"]</h4>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="DeleteAvailableDate" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="var PageModal=new bootstrap.Modal(document.getElementById('PageModal''),{keyboard:!1});PageModal.hide()" data-parentid="ContentPage">
+        <form asp-action="DeleteRequestedBooking" asp-controller="Manage"  asp-area="Supervisor" method="post" data-ajaxform data-ajaxafter="$('#PageModal').modal('hide');" data-parentid="PageModalContent">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
                 <input asp-for="Id" type="hidden" class="form-control" />

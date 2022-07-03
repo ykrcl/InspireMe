@@ -118,15 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Kapat" xml:space="preserve">
-    <value>Kapat</value>
+    <value>Close</value>
+  </data>
+  <data name="Kullanıcı Adı" xml:space="preserve">
+    <value>User Name</value>
   </data>
   <data name="Onayla" xml:space="preserve">
-    <value>Onayla</value>
+    <value>Verify</value>
   </data>
   <data name="Randevu Alınan Günler" xml:space="preserve">
-    <value>Randevu Alınan Günler</value>
+    <value>Meetings</value>
+  </data>
+  <data name="Saat" xml:space="preserve">
+    <value>Time</value>
   </data>
   <data name="Sil" xml:space="preserve">
-    <value>Sil</value>
+    <value>Delete</value>
+  </data>
+  <data name="Tarih" xml:space="preserve">
+    <value>Date</value>
   </data>
 </root>

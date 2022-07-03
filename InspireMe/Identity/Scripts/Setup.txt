@@ -174,6 +174,7 @@ ALTER TABLE public.aspnetusertokens OWNER TO "GetInspired";
 CREATE TABLE public.availabledates (
     id integer NOT NULL,
     hour integer NOT NULL,
+    day integer NOT NULL,
     price real,
     isavailable boolean NOT NULL,
     userid character varying NOT NULL,

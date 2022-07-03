@@ -12,7 +12,8 @@ using FluentEmail.Core;
 namespace InspireMe.Areas.Supervisor.Controllers
 {
     [Area("Supervisor")]
-    [Authorize]
+    
+    [Authorize(Roles ="Supervisor")]
     public class ManageController : Controller
     {
         private readonly ILogger<ManageController> _logger;
@@ -114,7 +115,7 @@ namespace InspireMe.Areas.Supervisor.Controllers
                         .Subject(_localizer["Toplantı Doğrulandı"].Value)
                         .Body(user.UserName +" "+ _localizer["Toplantı isteğinizi onayladı"].Value );
 
-                            await email1.SendAsync();
+                             email1.SendAsync();
                         }
                         catch { }
                         if (isAjax)
@@ -292,16 +293,6 @@ namespace InspireMe.Areas.Supervisor.Controllers
                 availableday.Price = obj.Price;
                 availableday.UserId = user.Id;
                 await availableDatesTable.CreateAsync(availableday);
-                            if (isAjax)
-                            {
-                                return Json(new { success = true, redirect = Url.Action("ListAvailableDates", "Manage", new { area = "Supervisor" }), alert = _localizer["Başarıyla Kaydedildi."].Value });
-                            }
-                            else
-                            {
-                                ViewBag.message = _localizer["Başarıyla Kaydedildi"].Value;
-                                ViewBag.title = _localizer["Saatleri Ayarla"].Value;
-                                return View("Message");
-                            } 
                         }
                     else
                     {
@@ -313,11 +304,34 @@ namespace InspireMe.Areas.Supervisor.Controllers
                     ModelState.AddModelError("Hours", _localizer["Saat 0 ile 24 arasında olmalıdır."]);
                 }
             }
+                if (ModelState.ErrorCount == 0) { 
+                if (isAjax)
+                {
+                    return Json(new { success = true, redirect = Url.Action("ListAvailableDates", "Manage", new { area = "Supervisor" }), alert = _localizer["Başarıyla Kaydedildi."].Value });
+                }
+                else
+                {
+                    ViewBag.message = _localizer["Başarıyla Kaydedildi"].Value;
+                    ViewBag.title = _localizer["Saatleri Ayarla"].Value;
+                    return View("Message");
+                }
+                }
             }
             if (isAjax)
                 return PartialView(obj);
             else
                 return View(obj);
+        }
+        protected override void Dispose(bool disposing)
+        {
+            // need to alway test if disposing pass else reallocations could occur during Finalize pass
+            // also good practice to test resource was created
+            if (disposing)
+            {
+                bookingsTable.Dispose();
+                availableDatesTable.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

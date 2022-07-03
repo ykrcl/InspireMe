@@ -135,36 +135,46 @@ namespace InspireMe.Areas.Meeting.Hubs
         }
         public async Task SendMessage(string message)
         {
-            var meeting = bookingsTable.FindBookingByConnectionId(Context.ConnectionId).Result;
+            var meeting = await bookingsTable.FindBookingByConnectionId(Context.ConnectionId);
             if (meeting != null) { 
-            var user = _userManager.GetUserAsync(Context.User).Result;
+            var user = await _userManager.GetUserAsync(Context.User);
             if (meeting.ChatHistory!= null) {
                 var updatedChat = meeting.ChatHistory + "\n" + user.UserName + ": " + message;
-                bookingsTable.UpdateChatHistoryMeetingAsync(updatedChat, meeting.Id).Wait();
+                await bookingsTable.UpdateChatHistoryMeetingAsync(updatedChat, meeting.Id);
             }
             else
             {
                 var updatedChat = user.UserName + ": " + message;
-                bookingsTable.UpdateChatHistoryMeetingAsync(updatedChat,meeting.Id).Wait();
+                await bookingsTable.UpdateChatHistoryMeetingAsync(updatedChat,meeting.Id);
             }
             await Clients.Group(meeting.Id.ToString()).SendAsync("ReceiveMessage", message);
             }
         }
         public async Task ConnectWebRtc(string sdpjson)
         {
-            var meeting = bookingsTable.FindBookingByConnectionId(Context.ConnectionId).Result;
+            var meeting = await bookingsTable.FindBookingByConnectionId(Context.ConnectionId);
             if (meeting != null)
             {
-                await Clients.Group(meeting.Id.ToString()).SendAsync("InitiateRemoteRtc", sdpjson);
+                await Clients.GroupExcept(meeting.Id.ToString(), Context.ConnectionId).SendAsync("InitiateRemoteRtc", sdpjson);
             }
         }
         public async Task AnswerRTC(string sdpjson)
         {
-            var meeting = bookingsTable.FindBookingByConnectionId(Context.ConnectionId).Result;
+            var meeting = await bookingsTable.FindBookingByConnectionId(Context.ConnectionId);
             if (meeting != null)
             {
-                await Clients.Group(meeting.Id.ToString()).SendAsync("AnswerRTC", sdpjson);
+                await Clients.GroupExcept(meeting.Id.ToString(), Context.ConnectionId).SendAsync("AnswerRTC", sdpjson);
             }
+        }
+        protected override void Dispose(bool disposing)
+        {
+            // need to alway test if disposing pass else reallocations could occur during Finalize pass
+            // also good practice to test resource was created
+            if (disposing)
+            {
+                bookingsTable.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

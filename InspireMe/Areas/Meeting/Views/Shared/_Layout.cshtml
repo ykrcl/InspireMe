@@ -13,40 +13,14 @@
     <script src="~/lib/jqueryui/jquery-ui.min.js"></script>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">InspireMe</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div id="LoginStatus" class="navbar-collapse collapse text-center">
-                    @await Component.InvokeAsync("LoginStatus")
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div id="notificationdiv"></div>
+  
     <div class="container">
         <main role="main" id="ContentPage" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <div class="modal fade" id="PageModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div id="PageModalContent" class="modal-body">
-        
-      </div>
-      
-    </div>
-  </div>
-</div>
+   
 
     <footer class="border-top footer text-muted">
         <div class="container">

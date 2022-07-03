@@ -9,12 +9,11 @@ namespace InspireMe.Models
         [Required]
         public string UserId { get; set; }
         [Display(Name = "Danışman Adı")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         [Display(Name = "Görüşme Tarihi")]
         [Required(ErrorMessage ="Bu alan gereklidir!")]
-        [DataType(DataType.Date)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy}")]
-        public DateOnly Date { get; set; }
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        public DateTime Date { get; set; }
 
         [Display(Name = "Görüşme Saati")]
         [Required(ErrorMessage = "Bu alan gereklidir!")]

@@ -7,6 +7,13 @@ using System.Globalization;
 using InspireMe.Areas.Meeting.Hubs;
 using InspireMe.Hubs;
 using InspireMe.BackgroundTasks;
+using FluentEmail.Smtp;
+using System.Net.Mail;
+using Dapper;
+using System.Net;
+using InspireMe.Data;
+
+SqlMapper.AddTypeHandler(new DapperSqlDateOnlyTypeHandler());
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -25,7 +32,14 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = true;
 });
 var emailconf = builder.Configuration.GetSection("EmailSettings");
-builder.Services.AddFluentEmail(emailconf.GetValue<string>("FromMail")).AddSmtpSender(emailconf.GetValue<string>("server"), emailconf.GetValue<int>("port"), emailconf.GetValue<string>("username"), emailconf.GetValue<string>("password"));
+var sender = new SmtpClient(emailconf.GetValue<string>("server"))
+{
+    UseDefaultCredentials = false,
+    Port = emailconf.GetValue<int>("port"),
+    Credentials = new NetworkCredential(emailconf.GetValue<string>("username"), emailconf.GetValue<string>("password")),
+    EnableSsl = true
+};
+builder.Services.AddFluentEmail(emailconf.GetValue<string>("FromMail")).AddSmtpSender(sender);
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddAntiforgery();
 builder.Services.AddMvc().AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix).AddDataAnnotationsLocalization();
