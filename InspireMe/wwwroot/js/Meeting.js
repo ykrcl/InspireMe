@@ -1,5 +1,5 @@
 ﻿"use strict";
-
+/*
 let stream = null;
 async function getConnectedDevices(type) {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -9,11 +9,12 @@ async function getConnectedDevices(type) {
 function updateCameraList(cameras) {
     const listElement = document.querySelector('select#availableCameras');
     listElement.innerHTML = '';
-    cameras.map(camera => {
-        const cameraOption = document.createElement('option');
-        cameraOption.label = camera.label;
-        cameraOption.value = camera.deviceId;
-    }).forEach(cameraOption => listElement.add(cameraOption));
+    cameras.forEach(cam => {
+        $('#availableCameras').append($('<option>', {
+            value: cam.deviceId,
+            text: cam.label
+        }));
+    });
 }
 
 
@@ -23,15 +24,15 @@ async function openCamera() {
         'audio': { 'echoCancellation': true },
         'video': {
             'deviceId': cameraId,
-            'width': { 'min': 1280 },
-            'height': { 'min': 720 }
+            'width': { 'min': 640 },
+            'height': { 'min': 480 }
         }
     }
 
     return await navigator.mediaDevices.getUserMedia(constraints);
 }
 
-
+*/
 
 
 function LoadChatHistory(history) {
@@ -45,10 +46,11 @@ function LoadChatHistory(history) {
 
 
 
-var username = $("#remote_UserName").html();
 var meetingid = $("#meetingid").html();
-const remoteVideo = document.querySelector('remoteVideo');
-const videoElement = document.querySelector('localVideo');
+/*const remoteVideo = document.getElementById('remoteVideo');
+const videoElement = document.getElementById('localVideo');
+const configuration = { 'iceServers': [{ 'urls': 'stun:74.125.142.127:19302' }] }
+const peerConnection = new RTCPeerConnection(configuration);
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(x => {
     stream = x;
@@ -65,7 +67,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(x => {
 navigator.mediaDevices.addEventListener('devicechange', event => {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(x => {
         stream = x;
-        videoElement.srcObject = x;
+        videoElement.srcObject = x
         getConnectedDevices('videoinput').then(y => {
             updateCameraList(y);
             $("#CameraModal").modal('show');
@@ -77,12 +79,12 @@ navigator.mediaDevices.addEventListener('devicechange', event => {
     });
 });
 
-
+*/
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/Meetings/MeetingsHub?meetingid=" + meetingid).build();
 document.getElementById("sendButton").disabled = true;
 
-connection.on("ReceiveMessage", function (message) {
+connection.on("ReceiveMessage", function (username ,message) {
     var li = document.createElement("li");
     document.getElementById("messagesList").appendChild(li);
     li.textContent = `${username}:  ${message}`;
@@ -105,27 +107,48 @@ connection.on("ShowErrorMessage", function (message) {
 connection.on("OtherLostConnection", function (isshowing) {
     if (isshowing) {
         $("#WaitModal").modal('show');
+        //peerConnection.restartIce();
+    }
+    
+});
+
+connection.on("OtherConnected", function (isshowing) {
+    if (isshowing) {
+        $("#WaitModal").modal('hide');
+        //peerConnection.restartIce();
+    }
+
+});
+
+$("#messageInput").on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        var message = document.getElementById("messageInput").value;
+        connection.invoke("SendMessage", message).catch(function (err) {
+            return console.error(err.toString());
+        });
+        $("#messageInput").val("");
     }
 });
 
-const configuration = { 'iceServers': [{ 'urls': 'stun:74.125.142.127:19302' }] }
-const peerConnection = new RTCPeerConnection(configuration);
 
 
-connection.on("StartWebRtC", async function (sdpjson) {
+/*connection.on("StartWebRtC", async function (sdpjson) {
     $("#WaitModal").modal('show');
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
     connection.invoke("ConnectWebRtc", JSON.stringify(offer)).catch(function (err) {
         return console.error(err.toString());
     });
-});
-
+});*/
+/*
 connection.on("InitiateRemoteRtc", async function (sdpjson) {
     $("#WaitModal").modal('hide');
     $("#CameraModal").modal('show');
     const offer = JSON.parse(sdpjson);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    stream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, stream);
+    });
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
     connection.invoke("AnswerRTC", JSON.stringify(answer)).catch(function (err) {
@@ -138,7 +161,10 @@ connection.on("AnswerRTC", async function (sdpjson) {
     $("#CameraModal").modal('show');
     const answer = JSON.parse(sdpjson);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-});
+    stream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, stream);
+    });
+});*/
 connection.start().then(function () {
     $("#WaitModal").modal('show');
     document.getElementById("sendButton").disabled = false;
@@ -151,14 +177,15 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     connection.invoke("SendMessage", message).catch(function (err) {
         return console.error(err.toString());
     });
+    $("#messageInput").val("");
     event.preventDefault();
 });
 
 
-
+/*
 document.getElementById("SaveCamButton").addEventListener("click", async function (event) {
     if ($("#availableCameras").val() !== null) {
-        const stream = await openCamera();
+        stream = await openCamera();
         videoElement.srcObject = stream;
         const senders = peerConnection.getSenders();
         senders.forEach((sender) => peerConnection.removeTrack(sender));
@@ -166,14 +193,19 @@ document.getElementById("SaveCamButton").addEventListener("click", async functio
             peerConnection.addTrack(track, stream);
         });
     }
-});
+});*/
 
 
 
-peerConnection.addEventListener('track', async (event) => {
-    const [remoteStream] = event.streams;
-    remoteVideo.srcObject = remoteStream;
-});
+//peerConnection.addEventListener('track', async (event) => {
+//    const [remoteStream] = event.streams;
+//    remoteVideo.srcObject = remoteStream;
+/*//});
+
+peerConnection.ontrack = e => {
+    remoteVideo.srcObject = e.streams[0];
+    return false;
+}
 
 document.getElementById("MuteAudio").addEventListener("click", function (event) {
     stream.getTracks().forEach((track) => {
@@ -203,5 +235,5 @@ document.getElementById("StopVideo").addEventListener("click", function (event) 
         }
     });
 
-});
+});*/
 

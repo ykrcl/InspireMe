@@ -70,9 +70,12 @@ $('#Date').datepicker({
             var dayofweek = currentDate.getDay();
             $("#Hour").empty();
             if (availabledays[dayofweek.toString()] !== undefined) {
-
+                var today = new Date();
                 availabledays[dayofweek.toString()].forEach((day, index) => {
                     if (fulldays[parseddate] !== undefined) {
+                        if (!(today.getDate() === currentDate.getDate() && day.hour<today.getHours())) { 
+
+                        
                         if (fulldays[parseddate].indexOf(day.hour) == -1) {
                             var option = $('<option></option>').attr("value", day.hour).text(day.hour.toString() + ": =>" + day.price.toString() + "TL");
                             $("#Hour").append(option);
@@ -80,9 +83,13 @@ $('#Date').datepicker({
                             var option = $('<option></option>').attr("value", day.hour).attr("disabled", "disabled").text(day.hour.toString() + ": =>" + "DOLU");
                             $("#Hour").append(option);
                         }
+                        }
                     } else {
-                        var option = $('<option></option>').attr("value", day.hour).text(day.hour.toString() + ": =>" + day.price.toString() + "TL");
-                        $("#Hour").append(option);
+                        if (!(today.getDate() === currentDate.getDate() && day.hour < today.getHours())) {
+                            var option = $('<option></option>').attr("value", day.hour).text(day.hour.toString() + ": =>" + day.price.toString() + "TL");
+                            $("#Hour").append(option);
+                        }
+
                     }
                 });
                 $("#Hour").removeAttr("disabled");

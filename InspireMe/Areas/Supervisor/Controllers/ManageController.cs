@@ -52,7 +52,7 @@ namespace InspireMe.Areas.Supervisor.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).OrderBy(x => x.Date).ThenBy(x => x.Hour).ToList();
+            var bookings = (await bookingsTable.GetSupervisorBookingsAsync(user.Id)).Where(x=>x.IsVerified).OrderBy(x => x.Date).ThenBy(x => x.Hour).ToList();
             if (isAjax)
                 return PartialView(bookings);
             else
@@ -150,7 +150,7 @@ namespace InspireMe.Areas.Supervisor.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var obj = new VerifyBookingViewModel();
+            var obj = new DeleteBookingViewModel();
             obj.Id = id;
             if (isAjax)
                 return PartialView(obj);
@@ -183,7 +183,7 @@ namespace InspireMe.Areas.Supervisor.Controllers
                         .To(notifuser.Email)
                         .Subject(_localizer["Toplantı Reddedildi"].Value)
                         .Body(user.UserName + " " + _localizer["Toplantı isteğinizi reddetti."].Value);
-                            await email1.SendAsync();
+                             email1.SendAsync();
                         }
                         catch { }
                         if (isAjax)

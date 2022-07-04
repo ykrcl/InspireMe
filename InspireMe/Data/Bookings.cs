@@ -178,7 +178,7 @@ namespace InspireMe.Data
         {
             const string sql = "SELECT * " +
                                "FROM Bookings " +
-                               "WHERE CustomerRTCId = @Id OR SupervisorId= @Id;";
+                               "WHERE CustomerRTCId = @Id OR SupervisorRTCId= @Id;";
             var bookings = await DbConnection.QueryFirstOrDefaultAsync<Booking>(sql, new { Id = Id });
             return bookings;
         }

@@ -38,26 +38,28 @@ namespace InspireMe.Areas.Meeting.Hubs
             {
                 if (!(meeting.Date == DateOnly.FromDateTime(DateTime.Now) && meeting.Hour == DateTime.Now.Hour) && meeting.IsEnded == true)
                 {
-                    Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Bulunamadı"]).Wait();
+                    Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Bulunamadı"].Value).Wait();
                     Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
                 }
                 else if (!(meeting.Date == DateOnly.FromDateTime(DateTime.Now) && meeting.Hour == DateTime.Now.Hour) && meeting.IsStarted == true && !(_userManager.IsInRoleAsync(user, "Supervisor").Result))
                 {
                     if (meeting.CustomerRTCId != null) {
-                        Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"]).Wait();
+                        Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"].Value).Wait();
                         Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
                     }
                     bookingsTable.ConnectCustomertoMeetingAsync(Context.ConnectionId, meeting.Id).Wait();
                     Groups.AddToGroupAsync(Context.ConnectionId, meeting.Id.ToString());
-                    if (meeting.SupervisorRTCId != null) { 
-                    Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();
+                    if (meeting.SupervisorRTCId != null) {
+                        /*Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();*/
+                        Clients.Client(Context.ConnectionId).SendAsync("OtherConnected", true).Wait();
+                        Clients.Client(meeting.SupervisorRTCId).SendAsync("OtherConnected", true).Wait();
                     }
                 }
                 else if (!(meeting.Date == DateOnly.FromDateTime(DateTime.Now) && meeting.Hour == DateTime.Now.Hour) && (_userManager.IsInRoleAsync(user, "Supervisor").Result))
                 {
                     if (meeting.SupervisorRTCId != null)
                     {
-                        Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"]).Wait();
+                        Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"].Value).Wait();
                         Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
                     }
                     bookingsTable.StartMeetingAsync(meeting.Id).Wait();
@@ -65,7 +67,9 @@ namespace InspireMe.Areas.Meeting.Hubs
                     Groups.AddToGroupAsync(Context.ConnectionId, meeting.Id.ToString());
                     if (meeting.CustomerRTCId != null)
                     {
-                        Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();
+                        /*Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();*/
+                        Clients.Client(Context.ConnectionId).SendAsync("OtherConnected", true).Wait();
+                        Clients.Client(meeting.CustomerRTCId).SendAsync("OtherConnected", true).Wait();
                     }
                 }
                 else if (meeting.Date == DateOnly.FromDateTime(DateTime.Now) && meeting.Hour == DateTime.Now.Hour)
@@ -74,7 +78,7 @@ namespace InspireMe.Areas.Meeting.Hubs
                     {
                         if (meeting.SupervisorRTCId != null)
                         {
-                            Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"]).Wait();
+                            Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"].Value).Wait();
                             Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
                         }
                         bookingsTable.StartMeetingAsync(meeting.Id).Wait();
@@ -82,14 +86,16 @@ namespace InspireMe.Areas.Meeting.Hubs
                         Groups.AddToGroupAsync(Context.ConnectionId, meeting.Id.ToString());
                         if (meeting.CustomerRTCId != null)
                         {
-                            Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();
+                            /*Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();*/
+                            Clients.Client(Context.ConnectionId).SendAsync("OtherConnected", true).Wait();
+                            Clients.Client(meeting.CustomerRTCId).SendAsync("OtherConnected", true).Wait();
                         }
                     }
                     else
                     {
                         if (meeting.CustomerRTCId != null)
                         {
-                            Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"]).Wait();
+                            Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Hatası"].Value).Wait();
                             Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
                         }
                         bookingsTable.StartMeetingAsync(meeting.Id).Wait();
@@ -97,19 +103,21 @@ namespace InspireMe.Areas.Meeting.Hubs
                         Groups.AddToGroupAsync(Context.ConnectionId, meeting.Id.ToString());
                         if (meeting.SupervisorRTCId != null)
                         {
-                            Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();
+                            /*Clients.Client(Context.ConnectionId).SendAsync("StartWebRtC", true).Wait();*/
+                            Clients.Client(Context.ConnectionId).SendAsync("OtherConnected", true).Wait();
+                            Clients.Client(meeting.SupervisorRTCId).SendAsync("OtherConnected", true).Wait();
                         }
                     }
                 }
                 else
                 {
-                    Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Bulunamadı"]).Wait();
+                    Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Bulunamadı"].Value).Wait();
                     Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
                 }
             }
             else
             {
-                Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Bulunamadı"]).Wait();
+                Clients.Client(Context.ConnectionId).SendAsync("ShowErrorMessage", _localizer["Toplantı Bulunamadı"].Value).Wait();
                 Clients.Client(Context.ConnectionId).SendAsync("EndMeeting").Wait();
             }
             return base.OnConnectedAsync();
@@ -147,10 +155,10 @@ namespace InspireMe.Areas.Meeting.Hubs
                 var updatedChat = user.UserName + ": " + message;
                 await bookingsTable.UpdateChatHistoryMeetingAsync(updatedChat,meeting.Id);
             }
-            await Clients.Group(meeting.Id.ToString()).SendAsync("ReceiveMessage", message);
+            await Clients.Group(meeting.Id.ToString()).SendAsync("ReceiveMessage", user.UserName, message);
             }
         }
-        public async Task ConnectWebRtc(string sdpjson)
+        /*public async Task ConnectWebRtc(string sdpjson)
         {
             var meeting = await bookingsTable.FindBookingByConnectionId(Context.ConnectionId);
             if (meeting != null)
@@ -165,7 +173,7 @@ namespace InspireMe.Areas.Meeting.Hubs
             {
                 await Clients.GroupExcept(meeting.Id.ToString(), Context.ConnectionId).SendAsync("AnswerRTC", sdpjson);
             }
-        }
+        }*/
         protected override void Dispose(bool disposing)
         {
             // need to alway test if disposing pass else reallocations could occur during Finalize pass

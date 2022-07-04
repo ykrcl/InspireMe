@@ -195,7 +195,6 @@ $(document).ready(function () {
                     else {
                         $('#ContentPage').hide().html(response).fadeIn("normal");
                     }
-                    logincheck();
                 }
             });
         }

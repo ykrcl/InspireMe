@@ -40,7 +40,7 @@ namespace InspireMe.Areas.Client.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).OrderBy(x=>x.Date).ThenBy(x=>x.Hour).ToList();
+            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).Where(x=>x.IsVerified=true).OrderBy(x=>x.Date).ThenBy(x=>x.Hour).ToList();
             if (isAjax)
                 return PartialView(bookings);
             else
@@ -111,7 +111,7 @@ namespace InspireMe.Areas.Client.Controllers
                 {
                     supervisor = await _userManager.FindByIdAsync(obj.UserId);
                     obj.UserName = supervisor.UserName;
-                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId,user.Id , DateOnly.FromDateTime(obj.Date), obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour)){
+                    if (await bookingsTable.CheckAvailabilityExistsAsync(obj.UserId,user.Id , DateOnly.FromDateTime(obj.Date), obj.Hour) && await availableDatesTable.CheckAvailabilityExistsAsync(obj.UserId,((int)obj.Date.DayOfWeek),obj.Hour) && ((DateOnly.FromDateTime(obj.Date)== DateOnly.FromDateTime(DateTime.Now)&&obj.Hour>=DateTime.Now.Hour)|| (DateOnly.FromDateTime(obj.Date) > DateOnly.FromDateTime(DateTime.Now)))){
                         Booking booking = new Booking();
                         
                         booking.Hour = obj.Hour;
