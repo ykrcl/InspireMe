@@ -122,7 +122,7 @@ namespace InspireMe.Data
             const string sql = "SELECT * " +
                                "FROM Bookings b " +
                                "inner join AspNetUsers customers on customers.Id = b.CustomerId " +
-                               "WHERE SupervisorId = @SupervisorId AND (Date>current_date - 1);";
+                               "WHERE SupervisorId = @SupervisorId AND (Date>current_date - 3) AND (IsEnded=FALSE OR (Date=current_date));";
             var bookings = await DbConnection.QueryAsync<Booking, IdentityUser, Booking>(sql, (booking, user) => { booking.Customer = user; return booking; }, new { SupervisorId = SupervisorId });
             return bookings;
         }
