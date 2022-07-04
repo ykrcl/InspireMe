@@ -17,6 +17,10 @@ function registerphoneinput(element) {
     });
 }
 
+function updateTitle(title) {
+    document.title = title; 
+}
+
 
 function updatelogin() {
 

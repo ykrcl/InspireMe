@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using InspireMe.Hubs;
 using FluentEmail.Core;
-
+using InspireMe.Areas.Supervisor.Models;
 namespace InspireMe.Areas.Supervisor.Controllers
 {
     [Area("Supervisor")]

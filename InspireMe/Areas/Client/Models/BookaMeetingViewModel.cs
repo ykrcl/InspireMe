@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InspireMe.Models
+namespace InspireMe.Areas.Client.Models
 {
     public class BookaMeetingViewModel
     {

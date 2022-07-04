@@ -22,8 +22,11 @@
 
   <ItemGroup>
     <Folder Include="Areas\Client\Data\" />
+    <Folder Include="Areas\Client\Resources\" />
     <Folder Include="Areas\Meeting\Data\" />
+    <Folder Include="Areas\Meeting\Resources\" />
     <Folder Include="Areas\Supervisor\Data\" />
+    <Folder Include="Areas\Supervisor\Resources\" />
   </ItemGroup>
 
 </Project>

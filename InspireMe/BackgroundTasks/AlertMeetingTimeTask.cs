@@ -81,6 +81,7 @@ namespace InspireMe.BackgroundTasks
                 var delta = (nextFullHour - timeOfDay);
                 if (delta.TotalMinutes < 5)
                 {
+                    await bookingsTable.EndOlderMeetings();
                     delta = delta.Add(TimeSpan.FromMinutes(57));
                 }
                 else

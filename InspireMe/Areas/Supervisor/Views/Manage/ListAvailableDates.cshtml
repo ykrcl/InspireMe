@@ -5,7 +5,9 @@
     ViewData["Title"] =  Localizer["Uygun Günler ve Saatler"];
     var culture = System.Globalization.CultureInfo.CurrentCulture;
 }
-
+<script>
+updateTitle('@ViewData["Title"]');
+</script>
 <h1>@Localizer["Uygun Günler ve Saatler"]</h1>
 
 <div class="container">

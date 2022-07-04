@@ -15,9 +15,7 @@
             <a data-ajax data-target="ContentPage" class="nav-link text-dark" asp-area="Client" asp-controller="Bookings" asp-action="Index">@Localizer["Görüşme Ayarla"]</a>
         </li>
         }
-        <li class="nav-item">
-            <a data-ajax data-target="ContentPage" class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">@Localizer["Hakkımızda"]</a>
-        </li>
+        
     </ul>
     <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
@@ -36,6 +34,40 @@
             
         </li>
     </ul>
+@if (ViewBag.usertype == "Supervisor")
+{
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown">@Localizer["Dil"]</a>
+            <div class="dropdown-menu" style="text-align: center;">
+                <a asp-area="" asp-route-lang="en" asp-area="Supervisor" asp-controller="Home" asp-action="Index" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["İngilizce"]
+                        </a>
+                <a  asp-area="" asp-route-lang="tr" asp-area="Supervisor" asp-controller="Home" asp-action="Index" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["Türkçe"]
+                        </a>
+                        
+            </div>
+        </li>
+    </ul>
+   }
+   @if (ViewBag.usertype == "Customer")
+{
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown">@Localizer["Dil"]</a>
+            <div class="dropdown-menu" style="text-align: center;">
+                <a asp-area="" asp-route-lang="en" asp-area="Client" asp-controller="Home" asp-action="Index" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["İngilizce"]
+                        </a>
+                <a  asp-area="" asp-route-lang="tr" asp-area="Client" asp-controller="Home" asp-action="Index" onclick="$('.dropdown-menu').removeClass('show');" class="dropdown-item text-dark">
+                            @Localizer["Türkçe"]
+                        </a>
+                        
+            </div>
+        </li>
+    </ul>
+   }
     <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/js/notification.js" asp-append-version="true"></script>
     

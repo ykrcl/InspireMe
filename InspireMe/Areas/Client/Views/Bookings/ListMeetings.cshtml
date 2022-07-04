@@ -8,7 +8,9 @@
     var activeMeetings = Model.Where(x => ((x.Date == DateOnly.FromDateTime(DateTime.Now) && x.Hour == DateTime.Now.Hour) || (x.IsStarted && !x.IsEnded))).ToList();
     var others = Model.Where(x => (!((x.Date == DateOnly.FromDateTime(DateTime.Now) && x.Hour == DateTime.Now.Hour) || (x.IsStarted && !x.IsEnded)) && !(x.IsStarted && x.IsEnded))).ToList();
 }
-
+<script>
+updateTitle('@ViewData["Title"]');
+</script>
 <h4>@Localizer["Görüşmeler"]</h4>
 
 <hr />

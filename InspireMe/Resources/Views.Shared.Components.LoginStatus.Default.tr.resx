@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Dil" xml:space="preserve">
+    <value>Dil</value>
+  </data>
   <data name="Giriş Yap" xml:space="preserve">
     <value>Giriş Yap</value>
   </data>
@@ -128,5 +131,11 @@
   </data>
   <data name="Kullanıcı" xml:space="preserve">
     <value>Kullanıcı</value>
+  </data>
+  <data name="Türkçe" xml:space="preserve">
+    <value>Türkçe</value>
+  </data>
+  <data name="İngilizce" xml:space="preserve">
+    <value>İngilizce</value>
   </data>
 </root>

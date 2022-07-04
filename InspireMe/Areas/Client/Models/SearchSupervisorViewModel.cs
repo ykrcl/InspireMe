@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
-namespace InspireMe.Models
+namespace InspireMe.Areas.Client.Models
 {
     public class SearchSupervisorViewModel
     {

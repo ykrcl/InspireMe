@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-
+using InspireMe.Areas.Client.Models;
 namespace InspireMe.Areas.Client.Controllers
 {
     [Area("Client")]

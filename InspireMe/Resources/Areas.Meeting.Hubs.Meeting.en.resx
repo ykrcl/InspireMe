@@ -117,31 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Dil" xml:space="preserve">
-    <value>Dil</value>
+  <data name="Toplantı Bulunamadı" xml:space="preserve">
+    <value>Meeting can't be found</value>
   </data>
-  <data name="Görüşme Ayarla" xml:space="preserve">
-    <value>Görüşme Ayarla</value>
-  </data>
-  <data name="Görüşmeleri Yönet" xml:space="preserve">
-    <value>Görüşmeleri Yönet</value>
-  </data>
-  <data name="Hakkımızda" xml:space="preserve">
-    <value>Hakkımızda</value>
-  </data>
-  <data name="Hesap Ayarları" xml:space="preserve">
-    <value>Hesap Ayarları</value>
-  </data>
-  <data name="Parola Değiştir" xml:space="preserve">
-    <value>Parola Değiştir</value>
-  </data>
-  <data name="Türkçe" xml:space="preserve">
-    <value>Türkçe</value>
-  </data>
-  <data name="Çıkış Yap" xml:space="preserve">
-    <value>Çıkış Yap</value>
-  </data>
-  <data name="İngilizce" xml:space="preserve">
-    <value>İngilizce</value>
+  <data name="Toplantı Hatası" xml:space="preserve">
+    <value>Meeting Error</value>
   </data>
 </root>

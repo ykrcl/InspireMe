@@ -1,4 +1,4 @@
-﻿@model InspireMe.Models.SearchSupervisorViewModel
+﻿@model InspireMe.Areas.Client.Models.SearchSupervisorViewModel
 
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
@@ -8,7 +8,9 @@
     ViewData["Title"] = @Localizer["Danışman Bul"];
     var allfields = System.Text.Json.JsonSerializer.Serialize(ViewBag.allfields);
 }
-
+<script>
+updateTitle('@ViewData["Title"]');
+</script>
 <h1>@Localizer["Danışman Bul"]</h1>
 <hr />
 

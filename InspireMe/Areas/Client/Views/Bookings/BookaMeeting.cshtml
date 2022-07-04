@@ -1,4 +1,4 @@
-﻿@model InspireMe.Models.BookaMeetingViewModel
+﻿@model InspireMe.Areas.Client.Models.BookaMeetingViewModel
 
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Newtonsoft.Json
@@ -19,7 +19,9 @@
     
     
 }
-
+<script>
+updateTitle('@ViewData["Title"]');
+</script>
 <h4>@Localizer["Görüşme Ayarla"]</h4>
 
 <hr />

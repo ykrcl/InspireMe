@@ -1,8 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Ana Sayfa"];
 }
+<script>
+updateTitle('@ViewData["Title"]');
+</script>
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">@Localizer["İlham Kaynağım Uygulamasına Hoşgeldiniz"]</h1>
+    <p>@Localizer["Görüşme ayarla kısmından ilgili olduğunuz alandan bir uzmala görüşüp kendinize ilham kaynağı bulabilirsiniz."]</p>
 </div>

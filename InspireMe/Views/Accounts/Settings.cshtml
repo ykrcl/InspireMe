@@ -9,7 +9,9 @@
 @{
         var allfields = System.Text.Json.JsonSerializer.Serialize(ViewBag.allfields);
 }
-
+<script>
+updateTitle('@ViewData["Title"]');
+</script>
 <h3>@Localizer["Kullanıcı Ayarları"]</h3>
 
 <hr />
