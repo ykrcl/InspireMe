@@ -42,6 +42,7 @@ namespace InspireMe.Identity
             {
                 context.Fail();
             }
+            bookingsTable.Dispose();
             return Task.CompletedTask;
         }
     }

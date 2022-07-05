@@ -278,7 +278,7 @@ namespace InspireMe.Data
         {
             const string updateRoleSql = "UPDATE Bookings " +
                                          "SET IsEnded = TRUE " +
-                                         "WHERE IsStarted = TRUE AND SupervisorRTCId = NULL AND CustomerRTCId = NULL AND ( (Date>current_date)  OR (Date=current_date AND Hour<=@Hour));";
+                                         "WHERE IsStarted = TRUE AND SupervisorRTCId = NULL AND CustomerRTCId = NULL AND ( (Date<current_date)  OR (Date=current_date AND Hour<@Hour));";
             using (var transaction = DbConnection.BeginTransaction())
             {
                 await DbConnection.ExecuteAsync(updateRoleSql, new

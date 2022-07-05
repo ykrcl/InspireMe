@@ -52,7 +52,8 @@ namespace InspireMe.Areas.Supervisor.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var bookings = (await bookingsTable.GetSupervisorBookingsAsync(user.Id)).Where(x=>x.IsVerified).OrderBy(x => x.Date).ThenBy(x => x.Hour).ToList();
+            await bookingsTable.EndOlderMeetings();
+            var bookings = (await bookingsTable.GetSupervisorBookingsAsync(user.Id)).Where(x=>x.IsVerified==true).OrderBy(x => x.Date).ThenBy(x => x.Hour).ToList();
             if (isAjax)
                 return PartialView(bookings);
             else

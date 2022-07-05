@@ -38,9 +38,11 @@ async function openCamera() {
 function LoadChatHistory(history) {
     var ks = history.split(/\r?\n/);
     ks.forEach(message => {
+        if(message !==""){
         var li = document.createElement("li");
         document.getElementById("messagesList").appendChild(li);
-        li.textContent = message;
+            li.textContent = message;
+        }
     });
 }
 
@@ -106,6 +108,7 @@ connection.on("ShowErrorMessage", function (message) {
 
 connection.on("OtherLostConnection", function (isshowing) {
     if (isshowing) {
+        sleep(400);
         $("#WaitModal").modal('show');
         //peerConnection.restartIce();
     }
@@ -114,6 +117,7 @@ connection.on("OtherLostConnection", function (isshowing) {
 
 connection.on("OtherConnected", function (isshowing) {
     if (isshowing) {
+        sleep(400);
         $("#WaitModal").modal('hide');
         //peerConnection.restartIce();
     }

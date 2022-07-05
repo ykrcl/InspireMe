@@ -51,6 +51,7 @@ namespace InspireMe.Areas.Meeting.Controllers
             model.Date = meeting.Date;
             model.MeetingId = meeting.Id.ToString();
             model.Hour = meeting.Hour;
+            model.ChatHistory = meeting.ChatHistory;
             if(await _userManager.IsInRoleAsync(user, "Supervisor"))
             {
                 model.UserName = (await bookingsTable.FindBookingByIdBindCustomerAsync(meetingid)).Customer.UserName;

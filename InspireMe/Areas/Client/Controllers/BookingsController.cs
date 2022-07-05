@@ -40,7 +40,8 @@ namespace InspireMe.Areas.Client.Controllers
         {
             bool isAjax = HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).Where(x=>x.IsVerified=true).OrderBy(x=>x.Date).ThenBy(x=>x.Hour).ToList();
+            await bookingsTable.EndOlderMeetings();
+            var bookings = (await bookingsTable.GetCustomerBookingsAsync(user.Id)).Where(x=>x.IsVerified==true).OrderBy(x=>x.Date).ThenBy(x=>x.Hour).ToList();
             if (isAjax)
                 return PartialView(bookings);
             else
